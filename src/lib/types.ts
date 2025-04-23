@@ -14,11 +14,12 @@ export interface Product {
 export interface User {
   id: string;
   name: string;
-  mobile: string;
+  phone: string;
   role: 'seller' | 'buyer' | 'both';
   profileImage?: string;
   locality?: string;
   pincode?: string;
+  password?: string;
   city?: string;
   state?: string;
   district?: string;
@@ -51,7 +52,7 @@ export interface Order {
 export type AuthUser = {
   id: string;
   name: string;
-  mobile: string;
+  phone: string;
   role: 'seller' | 'buyer' | 'both';
   loggedIn: boolean;
   city?: string;

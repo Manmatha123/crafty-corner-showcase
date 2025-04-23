@@ -1,11 +1,12 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthUser } from '../lib/types';
+import { AuthUser, User } from '../lib/types';
 import { useToast } from '@/components/ui/use-toast';
 import { mockUsers } from '@/lib/mockData';
+import axios from 'axios';
 
 interface AuthContextType {
-  user: AuthUser | null;
+  token: String | null;
   login: (mobile: string, password: string) => Promise<boolean>;
   register: (name: string, mobile: string, password: string, role: 'seller' | 'buyer' | 'both') => Promise<boolean>;
   logout: () => void;
@@ -13,10 +14,10 @@ interface AuthContextType {
 }
 
 const initialAuthContext: AuthContextType = {
-  user: null,
+  token: null,
   login: async () => false,
   register: async () => false,
-  logout: () => {},
+  logout: () => { },
   isAuthenticated: false,
 };
 
@@ -25,58 +26,47 @@ const AuthContext = createContext<AuthContextType>(initialAuthContext);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<String | null>(null);
   const { toast } = useToast();
-  const isAuthenticated = !!user;
-
+  const isAuthenticated = !!token;
+const baseUrl='http://localhost:8083';
+// process.env.NEXT_PUBLIC_API_URL || 
   useEffect(() => {
     // Check for stored user on initial load
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('authToken');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        console.log(parsedUser);
+        setToken(parsedUser);
       } catch (error) {
-        localStorage.removeItem('user');
+        localStorage.removeItem('authToken');
       }
     }
   }, []);
 
-  const login = async (mobile: string, password: string): Promise<boolean> => {
-    // In a real app, we'd call an API. Here we'll simulate with mock data
+  const login = async (phone: string, password: string): Promise<boolean> => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Simple validation for demo purposes
-      if (!mobile || !password) {
+      if (!phone || !password) {
         toast({
           title: "Error",
-          description: "Please provide mobile and password",
+          description: "Please provide phone and password",
           variant: "destructive",
         });
         return false;
       }
+      const user={
+        phone,
+        password
+      }
+      const res=await axios.post(`${baseUrl}/v1/api/user/signin`,user);
 
-      // Find user in mock data
-      const foundUser = mockUsers.find(u => u.mobile === mobile);
-      
-      if (foundUser && password === 'password') { // Simple password check for demo
-        const authUser: AuthUser = {
-          id: foundUser.id,
-          name: foundUser.name,
-          mobile: foundUser.mobile,
-          role: foundUser.role,
-          loggedIn: true
-        };
-        
-        setUser(authUser);
-        localStorage.setItem('user', JSON.stringify(authUser));
-        
+      if(res.data.status){
         toast({
           title: "Success",
           description: "You have successfully logged in",
         });
+        localStorage.setItem('authToken', JSON.stringify(res.data.message));
         return true;
       } else {
         toast({
@@ -97,17 +87,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (
-    name: string, 
-    mobile: string, 
-    password: string, 
-    role: 'seller' | 'buyer' | 'both'
+    name: string,
+    phone: string,
+    password: string,
+    role: 'seller' | 'buyer'
   ): Promise<boolean> => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
 
-      // Simple validation for demo purposes
-      if (!name || !mobile || !password || !role) {
+      if (!name || !phone || !password || !role) {
         toast({
           title: "Error",
           description: "All fields are required",
@@ -115,36 +102,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         return false;
       }
-
-      // Check if user already exists in mock data
-      const existingUser = mockUsers.find(u => u.mobile === mobile);
-      if (existingUser) {
+  
+      const user = {
+        name,
+        phone,
+        role,
+        password
+      }
+      const res = await axios.post(`${baseUrl}/v1/api/user/saveorupdate`, user);
+      if (res.data.status) {
+        toast({
+          title: "Success",
+          description: "Registration successful",
+        });
+        return true;
+      } else {
         toast({
           title: "Error",
-          description: "A user with this mobile number already exists",
+          description: res.data.message,
           variant: "destructive",
         });
         return false;
       }
 
-      // In a real app, we'd add the user to the database
-      // Here we'll just create a new user object
-      const newUser: AuthUser = {
-        id: `user_${Date.now()}`,
-        name,
-        mobile,
-        role,
-        loggedIn: true,
-      };
-
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-
-      toast({
-        title: "Success",
-        description: "Registration successful",
-      });
-      return true;
     } catch (error) {
       toast({
         title: "Error",
@@ -156,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    setUser(null);
+    setToken(null);
     localStorage.removeItem('user');
     toast({
       title: "Logged out",
@@ -165,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, login, register, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

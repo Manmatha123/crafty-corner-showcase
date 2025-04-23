@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import AddressForm from '@/components/AddressForm';
@@ -14,10 +14,11 @@ import { mockUsers } from '@/lib/mockData';
 import { MapPin, ShoppingBag, Box, Plus, Edit, Package, User as UserIcon, Phone, Image } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { EditProfileDialog } from '@/components/EditProfileDialog';
+import axios from 'axios';
 
 const ProfilePage = () => {
-  const { user, isAuthenticated } = useAuth();
-  const { getProductsByOwnerId, getOrdersByBuyerId, getOrdersBySellerId, 
+  const { token, isAuthenticated } = useAuth();
+  const { getProductsByOwnerId, getOrdersByBuyerId, getOrdersBySellerId,
     addProduct, updateProduct, deleteProduct, updateOrderStatus } = useProducts();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -28,30 +29,48 @@ const ProfilePage = () => {
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [user, setUser] = useState<User>();
+  const baseUrl = 'http://localhost:8083';
 
-  React.useEffect(() => {
-    if (!isAuthenticated) {
+  useEffect(() => {
+    if (!token) {
       navigate('/login');
     }
+    getUserInfo();
   }, [isAuthenticated, navigate]);
 
-  const userData = user && mockUsers.find(u => u.id === user.id);
-  const userProducts = user ? getProductsByOwnerId(user.id) : [];
-  const buyerOrders = user ? getOrdersByBuyerId(user.id) : [];
-  const sellerOrders = user ? getOrdersBySellerId(user.id) : [];
+  useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      navigate('/login');
+    }
+    getUserInfo();
+  }, []);
 
-  const handleAddAddress = (newAddress: Omit<Address, 'id'>) => {
-    toast({
-      title: "Success",
-      description: "Address added successfully!",
-    });
-    // In a real app, this would update the user's addresses
-  };
+  const getUserInfo = async () => {
+    try {
+      let authToken = localStorage.getItem('authToken');
+      authToken=JSON.parse(authToken);
+      const res = await axios.get(`${baseUrl}/v1/api/user/info`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        }
+      }
+      );
+      setUser(res.data);
+    } catch (error) {
 
-  const handleEditAddress = (address: Address) => {
-    setEditingAddress(address);
-    setShowAddressForm(true);
-  };
+    }
+  }
+
+  const userData = user;
+  const userProducts = [];
+  const buyerOrders = [];
+  const sellerOrders = [];
+
+
+
+
 
   const handleUpdateAddress = (updatedAddress: Omit<Address, 'id'>) => {
     toast({
@@ -123,9 +142,9 @@ const ProfilePage = () => {
                         <div className="flex justify-between items-start">
                           <h3 className="font-medium">{order.productName}</h3>
                           <Badge variant={
-                            order.status === 'delivered' ? 'default' : 
-                            order.status === 'confirmed' ? 'secondary' : 
-                            'outline'
+                            order.status === 'delivered' ? 'default' :
+                              order.status === 'confirmed' ? 'secondary' :
+                                'outline'
                           }>
                             {order.status}
                           </Badge>
@@ -150,53 +169,32 @@ const ProfilePage = () => {
             )}
           </div>
         );
-      
-      case 'addresses':
+
+      case 'info':
         return (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">My Addresses</h2>
-              <Button size="sm" onClick={() => {
-                setEditingAddress(undefined);
-                setShowAddressForm(true);
-              }}>
-                <Plus size={16} className="mr-1" />
-                Add Address
-              </Button>
+              <h2 className="text-xl font-semibold">My Information</h2>
             </div>
-            
-            {/* {addresses.length > 0 ? ( 
-              addresses.map(address => (
-                <Card key={address.id} className="animate-fade-in">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between">
-                      <div>
-                        <div className="flex items-center">
-                          <h3 className="font-medium">
-                            {address.street}
-                          </h3>
-                          {address.isDefault && (
-                            <Badge variant="outline" className="ml-2">Default</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          {address.city}, {address.state} {address.zipCode}
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => handleEditAddress(address)}>
-                        <Edit size={16} />
-                      </Button>
+            <Card className="animate-fade-in">
+              <CardContent className="p-4">
+                <div className="flex justify-between">
+                  <div>
+                    <div className="flex items-center">
+                      <h3 className="font-medium">
+                        {user.locality}
+                      </h3>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <p className="text-gray-500">You haven't added any addresses yet.</p>
-            )}
-              */}
+                    <p className="text-sm text-gray-500">
+                      {user.city},{user.district},{user.state},{user.pincode}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         );
-      
+
       case 'orders-received':
         return (
           <div className="space-y-4">
@@ -221,9 +219,9 @@ const ProfilePage = () => {
                         <div className="flex justify-between items-start">
                           <h3 className="font-medium">{order.productName}</h3>
                           <Badge variant={
-                            order.status === 'delivered' ? 'default' : 
-                            order.status === 'confirmed' ? 'secondary' : 
-                            'outline'
+                            order.status === 'delivered' ? 'default' :
+                              order.status === 'confirmed' ? 'secondary' :
+                                'outline'
                           }>
                             {order.status}
                           </Badge>
@@ -255,7 +253,7 @@ const ProfilePage = () => {
             )}
           </div>
         );
-      
+
       case 'my-products':
         return (
           <div className="space-y-4">
@@ -269,7 +267,7 @@ const ProfilePage = () => {
                 Add Product
               </Button>
             </div>
-            
+
             {userProducts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {userProducts.map(product => (
@@ -318,7 +316,7 @@ const ProfilePage = () => {
             )}
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -331,14 +329,43 @@ const ProfilePage = () => {
   const canSell = user.role === 'seller' || user.role === 'both';
   const canBuy = user.role === 'buyer' || user.role === 'both';
 
-  const handleUpdateProfile = async(updatedProfile: Omit<User, 'id'>) => {
-
+  const handleUpdateProfile = async (updatedProfile: Omit<User, 'id'>) => {
+    try {
+      const userObj:User={
+        ...updatedProfile,
+        id: user.id,
+      }
+      const res = await axios.post(`${baseUrl}/v1/api/user/update`, userObj, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      if (res.data.status) {
+        toast({
+          title: "Success",
+          description: "Profile Update successful",
+        });
+        localStorage.setItem('authToken', JSON.stringify(res.data.message));
+        setIsEditProfileOpen(false);
+        getUserInfo();
+      } else {
+        toast({
+          title: "Error",
+          description: res.data.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <Card className="mb-6">
           <CardHeader className="pb-2">
@@ -354,7 +381,7 @@ const ProfilePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <Phone size={16} className="text-gray-500" />
-                <span className="text-sm text-gray-500">Mobile: {user.mobile}</span>
+                <span className="text-sm text-gray-500">Mobile: {user.phone}</span>
               </div>
               <div className="flex items-center gap-2">
                 <UserIcon size={16} className="text-gray-500" />
@@ -397,11 +424,11 @@ const ProfilePage = () => {
             )}
             {canBuy && (
               <button
-                className={`pb-2 px-1 ${activeTab === 'addresses' ? 'tab-active' : 'text-gray-500 hover:text-gray-700'} flex items-center`}
-                onClick={() => setActiveTab('addresses')}
+                className={`pb-2 px-1 ${activeTab === 'info' ? 'tab-active' : 'text-gray-500 hover:text-gray-700'} flex items-center`}
+                onClick={() => setActiveTab('info')}
               >
                 <MapPin size={16} className="mr-2" />
-                Addresses
+                My Info
               </button>
             )}
             {canSell && (
@@ -430,12 +457,12 @@ const ProfilePage = () => {
         </div>
       </main>
 
-      <AddressForm
+      {/* <AddressForm
         address={editingAddress}
         isOpen={showAddressForm}
         onClose={() => setShowAddressForm(false)}
         onSave={editingAddress ? handleUpdateAddress : handleAddAddress}
-      />
+      /> */}
 
       <ProductForm
         product={editingProduct}

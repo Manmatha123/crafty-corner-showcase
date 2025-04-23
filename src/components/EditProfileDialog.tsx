@@ -45,7 +45,7 @@ export function EditProfileDialog({ user, isOpen, onClose, onSave }: EditProfile
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: user?.name || "",
-      phone: user?.mobile || "",
+      phone: user?.phone || "",
       locality: user?.locality || "",
       pincode: user?.pincode || "",
       city: user?.city || "",
@@ -57,7 +57,6 @@ export function EditProfileDialog({ user, isOpen, onClose, onSave }: EditProfile
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     onSave(data);
-    onClose();
   }
 
   return (

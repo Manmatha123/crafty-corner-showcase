@@ -1,14 +1,18 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthUser, User } from '../lib/types';
-import { useToast } from '@/components/ui/use-toast';
-import { mockUsers } from '@/lib/mockData';
-import axios from 'axios';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { AuthUser, User } from "../lib/types";
+import { useToast } from "@/components/ui/use-toast";
+import { mockUsers } from "@/lib/mockData";
+import axios from "axios";
 
 interface AuthContextType {
   token: String | null;
   login: (mobile: string, password: string) => Promise<boolean>;
-  register: (name: string, mobile: string, password: string, role: 'seller' | 'buyer' | 'both') => Promise<boolean>;
+  register: (
+    name: string,
+    mobile: string,
+    password: string,
+    role: "seller" | "buyer" | "both"
+  ) => Promise<boolean>;
   logout: () => void;
   user:User|null;
   isAuthenticated: boolean;
@@ -27,13 +31,15 @@ const AuthContext = createContext<AuthContextType>(initialAuthContext);
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [token, setToken] = useState<String | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
   const isAuthenticated = !!token;
-const baseUrl='http://localhost:8083';
-// process.env.NEXT_PUBLIC_API_URL || 
+  const baseUrl = "http://localhost:8082";
+  // process.env.NEXT_PUBLIC_API_URL ||
   useEffect(() => {
     // Check for stored user on initial load
     const storedUser = localStorage.getItem('authToken');
@@ -61,11 +67,11 @@ const baseUrl='http://localhost:8083';
         });
         return false;
       }
-      const user={
+      const user = {
         phone,
-        password
-      }
-      const res=await axios.post(`${baseUrl}/v1/api/user/signin`,user);
+        password,
+      };
+      const res = await axios.post(`${baseUrl}/v1/api/user/signin`, user);
 
       if(res.data.status){
         const userRes = await axios.get(`${baseUrl}/v1/api/user/info`, {
@@ -103,10 +109,9 @@ const baseUrl='http://localhost:8083';
     name: string,
     phone: string,
     password: string,
-    role: 'seller' | 'buyer'
+    role: "seller" | "buyer"
   ): Promise<boolean> => {
     try {
-
       if (!name || !phone || !password || !role) {
         toast({
           title: "Error",
@@ -115,13 +120,13 @@ const baseUrl='http://localhost:8083';
         });
         return false;
       }
-  
+
       const user = {
         name,
         phone,
         role,
-        password
-      }
+        password,
+      };
       const res = await axios.post(`${baseUrl}/v1/api/user/saveorupdate`, user);
       if (res.data.status) {
         toast({
@@ -137,7 +142,6 @@ const baseUrl='http://localhost:8083';
         });
         return false;
       }
-
     } catch (error) {
       toast({
         title: "Error",

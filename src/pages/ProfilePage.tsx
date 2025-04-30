@@ -33,7 +33,8 @@ const ProfilePage = () => {
   const baseUrl = 'http://localhost:8083';
 
   useEffect(() => {
-    if (!token) {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
       navigate('/login');
     }
     getUserInfo();
@@ -45,6 +46,7 @@ const ProfilePage = () => {
       navigate('/login');
     }
     getUserInfo();
+    getOwnerproduct();
   }, []);
 
   const getUserInfo = async () => {
@@ -57,6 +59,7 @@ const ProfilePage = () => {
         }
       }
       );
+      localStorage.setItem("user",JSON.stringify(res.data));
       setUser(res.data);
     } catch (error) {
 
@@ -64,43 +67,69 @@ const ProfilePage = () => {
   }
 
   const userData = user;
-  const userProducts = [];
+  const [ownerProduct,setOwnerProduct] = useState<Product[]>([]);
   const buyerOrders = [];
   const sellerOrders = [];
 
+const getOwnerproduct = async () => {
+try {
+  let authToken = localStorage.getItem('authToken');
+  authToken=JSON.parse(authToken);
+  const res= await axios.get(`${baseUrl}/v1/api/product/owner-products`, {
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  setOwnerProduct(res.data);
+} catch (error) {
+  
+}
+}
 
+const handleEditProduct = (product: Product) => {
+  setEditingProduct(product); 
+};
 
-
-
-  const handleUpdateAddress = (updatedAddress: Omit<Address, 'id'>) => {
-    toast({
-      title: "Success",
-      description: "Address updated successfully!",
-    });
-    // In a real app, this would update the address
-  };
-
-  const handleAddProduct = (newProduct: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
-    addProduct(newProduct);
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
+useEffect(() => {
+  if (editingProduct) {
+    console.log("fsadffasdf",editingProduct)
     setShowProductForm(true);
-  };
+  }
+}, [editingProduct]);
 
-  const handleUpdateProduct = (updatedProduct: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
-    if (editingProduct) {
-      updateProduct({
-        ...editingProduct,
-        ...updatedProduct,
-      });
+  const handleUpdateProduct = async(updatedProduct: Omit<Product, 'id' >,imgfile:File) => {
+    let product: Product = {
+      ...updatedProduct,
+      id: editingProduct?.id || null, 
     }
+    if (editingProduct) {
+      product = {
+        ...editingProduct,
+        ...updatedProduct
+     }
+   }
+
+    const formData = new FormData();
+
+    if (imgfile && imgfile.size > 0) {
+      formData.append('file', imgfile);
+    } else {
+      console.warn('No image file provided or file is empty. Adding an empty image placeholder.');
+      const emptyImage = new Blob([], { type: 'image/png' }); // Create an empty image file
+      formData.append('file', emptyImage, 'placeholder.png'); // Append it with a default name
+    }
+  
+    formData.append('product', new Blob([JSON.stringify(product)], { type: 'application/json' }));
+  
+ await updateProduct(formData);
+ getOwnerproduct();
+ 
   };
 
-  const handleDeleteProduct = (productId: string) => {
+  const handleDeleteProduct = async(productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      deleteProduct(productId);
+    await  deleteProduct(productId);
+    getOwnerproduct();
     }
   };
 
@@ -108,12 +137,15 @@ const ProfilePage = () => {
     updateOrderStatus(orderId, 'confirmed');
   };
 
-  const handleSaveProduct = (product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
-    if (editingProduct) {
-      handleUpdateProduct(product);
-    } else {
-      handleAddProduct(product);
-    }
+  const handleSaveProduct = (product: Omit<Product, 'id' >,imgfile:File) => {
+    // if (editingProduct) {
+     
+      handleUpdateProduct({...product,seller:user},imgfile);
+
+    // } else {
+      // handleAddProduct(product);
+    // }
+
   };
 
   const renderTabContent = () => {
@@ -260,7 +292,7 @@ const ProfilePage = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">My Products</h2>
               <Button size="sm" onClick={() => {
-                setEditingProduct(undefined);
+                setEditingProduct({} as Product);
                 setShowProductForm(true);
               }}>
                 <Plus size={16} className="mr-1" />
@@ -268,15 +300,15 @@ const ProfilePage = () => {
               </Button>
             </div>
 
-            {userProducts.length > 0 ? (
+            {ownerProduct.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {userProducts.map(product => (
+                {ownerProduct.map(product => (
                   <Card key={product.id} className="animate-fade-in">
                     <CardContent className="p-4">
                       <div className="flex gap-4">
                         <div className="h-24 w-24 bg-gray-100 rounded overflow-hidden">
                           <img
-                            src={product.image}
+                            src={`data:image/jpeg;base64,${product.image}`}
                             alt={product.name}
                             className="h-full w-full object-cover"
                             onError={(e) => {
@@ -288,13 +320,10 @@ const ProfilePage = () => {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <h3 className="font-medium">{product.name}</h3>
-                            <Badge>{product.category}</Badge>
+                            <Badge>{product?.category?.name}</Badge>
                           </div>
                           <p className="text-sm text-gray-500">
-                            ${product.price.toFixed(2)} / {product.sellUnit}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Location: {product.location}
+                          ₹{product.price.toFixed(2)} / {product.sellunit}
                           </p>
                           <div className="mt-2 flex justify-end space-x-2">
                             <Button size="sm" variant="outline" onClick={() => handleEditProduct(product)}>
@@ -467,7 +496,9 @@ const ProfilePage = () => {
       <ProductForm
         product={editingProduct}
         isOpen={showProductForm}
-        onClose={() => setShowProductForm(false)}
+        onClose={() => {setShowProductForm(false)
+          setEditingProduct(null)}
+        }
         onSave={handleSaveProduct}
       />
 

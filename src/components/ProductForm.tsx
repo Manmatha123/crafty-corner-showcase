@@ -1,35 +1,61 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Product } from '@/lib/types';
+import { Category, Product } from '@/lib/types';
 import { allCategories } from '@/lib/mockData';
 import { Upload } from 'lucide-react';
+import axios from 'axios';
 
 interface ProductFormProps {
   product?: Product;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => void;
+  onSave: (product: Omit<Product, 'id' >,imgfile:File) => void;
 }
 
 const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => {
   const [name, setName] = useState(product?.name || '');
-  const [price, setPrice] = useState(product?.price.toString() || '');
-  const [category, setCategory] = useState(product?.category || '');
+  const [price, setPrice] = useState(product?.price?.toString() || '');
+  const [category, setCategory] = useState<Category>(product?.category || null);
   const [description, setDescription] = useState(product?.description || '');
-  const [sellUnit, setSellUnit] = useState(product?.sellUnit || 'kg');
-  const [location, setLocation] = useState(product?.location || '');
+  const [sellunit, setSellunit] = useState(product?.sellunit || 'kg');
   const [image, setImage] = useState(product?.image || '');
   const [imagePreview, setImagePreview] = useState<string | null>(product?.image || null);
+  const [categoryList, setCategoryList] = useState<Category[]>()
+  const [imgfile,setImgfile]=useState<File>(null);
+
+  useEffect(() => {
+    getAllCategory();
+  }, []);
+
+  useEffect(() => {
+    resetForm();
+  }, [product]);
+
+  const getAllCategory = async () => {
+    const authToken = localStorage.getItem('authToken');
+    const token = JSON.parse(authToken)
+    if (!token) {
+      console.error('Please login');
+      return;
+    }
+    const res = await axios.get(`http://localhost:8083/v1/api/categories/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    setCategoryList(res.data);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImgfile(file);
       // For demo purposes, we'll just create a data URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -43,18 +69,18 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const newProduct: Omit<Product, 'id' | 'sellerId' | 'sellerName'> = {
+
+    const newProduct: Omit<Product, 'id' > = {
       name,
       price: parseFloat(price),
       category,
       description,
-      sellUnit,
-      location,
+      sellunit,
+      seller:null,
       image: image || 'https://images.unsplash.com/photo-1501162946741-4960f990fdf4?w=500&auto=format&fit=crop&q=60',
     };
-    
-    onSave(newProduct);
+    console.log(newProduct)
+    onSave(newProduct,imgfile);
     resetForm();
     onClose();
   };
@@ -63,21 +89,21 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
     if (!product) {
       setName('');
       setPrice('');
-      setCategory('');
+      setCategory(null);
       setDescription('');
-      setSellUnit('kg');
-      setLocation('');
+      setSellunit('kg');
       setImage('');
       setImagePreview(null);
+      setImgfile(null);
     } else {
       setName(product.name);
-      setPrice(product.price.toString());
+      setPrice(product?.price?.toString());
       setCategory(product.category);
       setDescription(product.description);
-      setSellUnit(product.sellUnit);
-      setLocation(product.location);
+      setSellunit(product.sellunit);
       setImage(product.image);
       setImagePreview(product.image);
+      setImgfile(null);
     }
   };
 
@@ -92,7 +118,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
             {product ? 'Edit Product' : 'Add New Product'}
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-[1fr_200px] gap-4">
@@ -107,7 +133,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
                     required
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="price">Price</Label>
@@ -122,10 +148,10 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="unit">Sell Unit</Label>
-                    <Select value={sellUnit} onValueChange={setSellUnit}>
+                    <Select value={sellunit} onValueChange={setSellunit}>
                       <SelectTrigger id="unit">
                         <SelectValue placeholder="Select unit" />
                       </SelectTrigger>
@@ -138,14 +164,14 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="image">Product Image</Label>
                 <div className="mt-1 flex flex-col items-center">
                   <div className="h-32 w-full bg-gray-100 rounded-md flex items-center justify-center overflow-hidden mb-2">
                     {imagePreview ? (
                       <img
-                        src={imagePreview}
+                         src={imgfile && imgfile.size>0?imagePreview:`data:image/jpeg;base64,${imagePreview}`}
                         alt="Product preview"
                         className="h-full w-full object-cover"
                       />
@@ -165,36 +191,34 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
                 </div>
               </div>
             </div>
-            
+
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="category">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select
+                  value={category?.name}
+                  onValueChange={(value) => {
+                    const selectedCategory = categoryList?.find((cat) => cat.name === value);
+                    setCategory(selectedCategory || null);
+                  }}
+                >
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {allCategories.slice(1).map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
+                    {categoryList &&
+                      categoryList.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.name}>
+                          {cat?.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="City, State"
-                  required
-                />
-              </div>
+
             </div>
-            
+
             <div>
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -207,7 +231,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => {
               resetForm();

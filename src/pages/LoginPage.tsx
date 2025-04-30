@@ -23,6 +23,8 @@ const LoginPage = () => {
       const success = await login(mobile, password);
       if (success) {
         navigate('/');
+        navigate(0)
+        // window.location.reload();
       }
     } finally {
       setIsLoading(false);

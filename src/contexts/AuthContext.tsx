@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (mobile: string, password: string) => Promise<boolean>;
   register: (name: string, mobile: string, password: string, role: 'seller' | 'buyer' | 'both') => Promise<boolean>;
   logout: () => void;
+  user:User|null;
   isAuthenticated: boolean;
 }
 
@@ -18,6 +19,7 @@ const initialAuthContext: AuthContextType = {
   login: async () => false,
   register: async () => false,
   logout: () => { },
+  user:null,
   isAuthenticated: false,
 };
 
@@ -27,6 +29,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<String | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
   const isAuthenticated = !!token;
 const baseUrl='http://localhost:8083';
@@ -34,13 +37,16 @@ const baseUrl='http://localhost:8083';
   useEffect(() => {
     // Check for stored user on initial load
     const storedUser = localStorage.getItem('authToken');
+    const userObj = localStorage.getItem('user');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        console.log(parsedUser);
+        const userobject = JSON.parse(userObj);
+        setUser(userobject);
         setToken(parsedUser);
       } catch (error) {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
       }
     }
   }, []);
@@ -62,10 +68,17 @@ const baseUrl='http://localhost:8083';
       const res=await axios.post(`${baseUrl}/v1/api/user/signin`,user);
 
       if(res.data.status){
+        const userRes = await axios.get(`${baseUrl}/v1/api/user/info`, {
+          headers: {
+            Authorization: `Bearer ${res.data.message}`,
+          } } );
+          localStorage.setItem("user",JSON.stringify(userRes.data));
         toast({
           title: "Success",
           description: "You have successfully logged in",
         });
+
+
         localStorage.setItem('authToken', JSON.stringify(res.data.message));
         return true;
       } else {
@@ -138,6 +151,7 @@ const baseUrl='http://localhost:8083';
   const logout = () => {
     setToken(null);
     localStorage.removeItem('user');
+    localStorage.removeItem("authToken");
     toast({
       title: "Logged out",
       description: "You have been logged out successfully",
@@ -145,7 +159,7 @@ const baseUrl='http://localhost:8083';
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, login,user, register, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

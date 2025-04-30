@@ -3,12 +3,15 @@ export interface Product {
   image: string;
   name: string;
   price: number;
-  category: string;
+  category: Category;
   description: string;
-  sellUnit: string; // kg/ liter/ pic
-  location: string;
-  sellerId: string;
-  sellerName: string;
+  sellunit: string; // kg/ liter/ pic
+  seller: User;
+}
+
+export interface Category {
+id:number,
+name:string
 }
 
 export interface User {

@@ -4,12 +4,14 @@ import { Product, Order } from '../lib/types';
 import { mockProducts, mockOrders } from '../lib/mockData';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from './AuthContext';
+import axios from 'axios';
+import { assert } from 'console';
 
 interface ProductContextType {
   products: Product[];
   orders: Order[];
   addProduct: (product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => void;
-  updateProduct: (product: Product) => void;
+  updateProduct: (formData: FormData) => void;
   deleteProduct: (productId: string) => void;
   addOrder: (order: Omit<Order, 'id' | 'orderedAt'>) => void;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
@@ -32,46 +34,73 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const { toast } = useToast();
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   const addProduct = (product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to add products",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (!user) {
+    //   toast({
+    //     title: "Error",
+    //     description: "You must be logged in to add products",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
-    const newProduct: Product = {
-      ...product,
-      id: `product_${Date.now()}`,
-      sellerId: user.id,
-      sellerName: user.name,
-    };
+    // const newProduct: Product = {
+    //   ...product,
+    //   id: `product_${Date.now()}`,
+    //   sellerId: user.id,
+    //   sellerName: user.name,
+    // };
 
-    setProducts([...products, newProduct]);
-    toast({
-      title: "Success",
-      description: "Product added successfully",
-    });
+    // setProducts([...products, newProduct]);
+    // toast({
+    //   title: "Success",
+    //   description: "Product added successfully",
+    // });
   };
 
-  const updateProduct = (product: Product) => {
-    setProducts(products.map(p => p.id === product.id ? product : p));
+  const updateProduct = async (formData: FormData) => {
+
+    let authToken = localStorage.getItem('authToken');
+    authToken = JSON.parse(authToken);
+
+    const res = await axios.post('http://localhost:8083/v1/api/product/saveorupdate', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
+
+
     toast({
       title: "Success",
       description: "Product updated successfully",
     });
   };
 
-  const deleteProduct = (productId: string) => {
-    setProducts(products.filter(p => p.id !== productId));
-    toast({
-      title: "Success",
-      description: "Product deleted successfully",
+  const deleteProduct = async (productId: string) => {
+    let authToken = localStorage.getItem('authToken');
+    authToken = JSON.parse(authToken);
+    const res = await axios.delete(`http://localhost:8083/v1/api/product/delete/id/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      }
     });
+    if (res.data.status) {
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Something went wrong while deleting the product",
+        variant: "destructive",
+      });
+      return;
+    }
+
   };
 
   const addOrder = (order: Omit<Order, 'id' | 'orderedAt'>) => {
@@ -97,7 +126,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const getProductsByOwnerId = (ownerId: string) => {
-    return products.filter(product => product.sellerId === ownerId);
+    return products;
+    // return products.filter(product => product.sellerId === ownerId);
   };
 
   const getOrdersByBuyerId = (buyerId: string) => {

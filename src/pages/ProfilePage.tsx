@@ -30,7 +30,7 @@ const ProfilePage = () => {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<User>();
-  const baseUrl = 'http://localhost:8083';
+  const baseUrl = 'http://localhost:8082';
 
   useEffect(() => {
     if (!token) {

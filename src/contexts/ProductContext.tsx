@@ -16,6 +16,8 @@ interface ProductContextType {
   getProductsByOwnerId: (ownerId: string) => Product[];
   getOrdersByBuyerId: (buyerId: string) => Order[];
   getOrdersBySellerId: (sellerId: string) => Order[];
+  setFilteredProducts: (filtered: Product[]) => void;
+
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -33,6 +35,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const { toast } = useToast();
   const { user } = useAuth();
+  const setFilteredProducts = (filtered: Product[]) => {
+    setProducts(filtered);
+  };
+  
 
   const addProduct = (product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
     if (!user) {
@@ -121,6 +127,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         getProductsByOwnerId,
         getOrdersByBuyerId,
         getOrdersBySellerId,
+        setFilteredProducts,
       }}
     >
       {children}

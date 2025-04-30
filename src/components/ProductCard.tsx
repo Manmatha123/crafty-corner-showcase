@@ -67,7 +67,7 @@ const ProductCard = ({ product, onOrder, quantityInCart,pageName }: ProductCardP
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="font-medium text-lg text-gray-900 mb-1">{product.name}</h3>
         <p className="text-sm text-gray-500 mb-3">
-          {product.category} • {product.location}
+          {product.category.name} • {product.location}
         </p>
         <div className="flex items-baseline justify-between mb-3">
           <span className="text-xl font-bold text-brand-600">

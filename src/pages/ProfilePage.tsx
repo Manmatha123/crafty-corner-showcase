@@ -53,7 +53,7 @@ const ProfilePage = () => {
   const fetchReceiveOrder=async()=>{
     try {
       const BASE_URL="http://localhost:8083";
-      if(user && user.role=="seller"){
+      if(user && user?.role==="seller"){
         let authToken = localStorage.getItem('authToken');
         authToken=JSON.parse(authToken);
         const res=await axios.get(`${BASE_URL}/v1/api/order/list/store/id/${user.id}`, {

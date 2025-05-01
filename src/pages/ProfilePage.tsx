@@ -60,7 +60,7 @@ const ProfilePage = () => {
           headers: {
             Authorization: `Bearer ${authToken}`,
           }});
-          setBuyerOrders(res.data);
+          setSellerOrders(res.data);
       }
       
     } catch (error) {
@@ -87,7 +87,7 @@ const ProfilePage = () => {
   const userData = user;
   const [ownerProduct,setOwnerProduct] = useState<Product[]>([]);
   const [buyerOrders,setBuyerOrders] = useState<Order[]>([]);
-  const sellerOrders = [];
+  const [sellerOrders,setSellerOrders] = useState<Order[]>([]);
 
 const getOwnerproduct = async () => {
 try {
@@ -256,8 +256,8 @@ useEffect(() => {
                     <div className="grid grid-cols-[80px_1fr] gap-4">
                       <div className="h-20 w-20 bg-gray-100 rounded overflow-hidden">
                         <img
-                          src={order.productImage}
-                          alt={order.productName}
+                           src={`data:image/jpeg;base64,${order?.orderProducts[0]?.product?.image}`}
+                          alt="orderdata"
                           className="h-full w-full object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -265,9 +265,10 @@ useEffect(() => {
                           }}
                         />
                       </div>
+                      
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">{order.productName}</h3>
+                          <h3 className="font-medium">{order.city}</h3>
                           <Badge variant={
                             order.status === 'delivered' ? 'default' :
                               order.status === 'confirmed' ? 'secondary' :
@@ -277,15 +278,15 @@ useEffect(() => {
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-500">
-                          Quantity: {order.quantity} • Total: ${order.totalPrice.toFixed(2)}
+                          Quantity: {order.finalprice} • Total: ${order.finalprice.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Ordered on {new Date(order.orderedAt).toLocaleDateString()}
+                          Ordered on {new Date(order.orderdate).toLocaleDateString()}
                         </p>
                         <div className="mt-2 flex justify-between items-center">
                           <p className="text-xs flex items-center">
                             <MapPin size={14} className="mr-1" />
-                            {order.address.street}, {order.address.city}
+                            {order.city}, {order.district}
                           </p>
                           {order.status === 'pending' && (
                             <Button size="sm" onClick={() => handleConfirmOrder(order.id)}>

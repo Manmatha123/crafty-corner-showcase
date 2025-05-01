@@ -32,7 +32,7 @@ const formSchema = z.object({
   district: z.string().min(2, "District must be at least 2 characters"),
   profileImage: z.string().optional(),
   userAdditional: z.object({
-    customorder: z.boolean(),
+    customorder: z.boolean().optional(),
   }).optional(),
 });
 
@@ -55,7 +55,7 @@ export function EditProfileDialog({ user, isOpen, onClose, onSave }: EditProfile
       state: user?.state || "",
       district: user?.district || "",
       profileImage: user?.profileImage || "",
-      userAdditional: user?.userAdditional || null
+      userAdditional: user?.userAdditional || {},
     },
   });
 
@@ -65,7 +65,7 @@ export function EditProfileDialog({ user, isOpen, onClose, onSave }: EditProfile
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="md:max-w-[500px]">
+      <DialogContent className="md:max-w-[600px]" style={{maxHeight:"80vh",overflowY:"scroll"}}>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>

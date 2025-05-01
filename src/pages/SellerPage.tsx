@@ -32,7 +32,7 @@ const SellerPage = () => {
   }, [sellerId]);
 
   const getchSellerById = async () => {
-    const BASE_URL = "http://localhost:8082";
+    const BASE_URL = "http://localhost:8083";
     try {
       const res = await axios.get(`${BASE_URL}/v1/api/user/id/${sellerId}`);
       setsellerInfo(res.data);
@@ -41,7 +41,7 @@ const SellerPage = () => {
   }
 
   const fetchSellerProducts = async () => {
-    const BASE_URL = "http://localhost:8082";
+    const BASE_URL = "http://localhost:8083";
     try {
       const res = await axios.get(`${BASE_URL}/v1/public/api/product/seller-products/id/${sellerId}`);
       setproductList(res.data);

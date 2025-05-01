@@ -15,6 +15,8 @@ import { MapPin, ShoppingBag, Box, Plus, Edit, Package, User as UserIcon, Phone,
 import { useToast } from '@/components/ui/use-toast';
 import { EditProfileDialog } from '@/components/EditProfileDialog';
 import axios from 'axios';
+import OrderDetailsDialog from '@/components/OrderDetailsDialog';
+import { format } from 'date-fns';
 
 const ProfilePage = () => {
   const { token, isAuthenticated } = useAuth();
@@ -30,7 +32,12 @@ const ProfilePage = () => {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<User>();
-  const baseUrl = 'http://localhost:8082';
+  const baseUrl = 'http://localhost:8083';
+  const userData = user;
+  const [ownerProduct,setOwnerProduct] = useState<Product[]>([]);
+  const [buyerOrders,setBuyerOrders] = useState<Order[]>([]);
+  const [sellerOrders,setSellerOrders] = useState<Order[]>([]);
+
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -50,23 +57,7 @@ const ProfilePage = () => {
     
   }, []);
 
-  const fetchReceiveOrder=async(id:any)=>{
-    try {
-      const BASE_URL="http://localhost:8082";
-      // if(user && user?.role==="seller"){
-        let authToken = localStorage.getItem('authToken');
-        authToken=JSON.parse(authToken);
-        const res=await axios.get(`${BASE_URL}/v1/api/order/list/store/id/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          }});
-          setSellerOrders(res.data);
-      // }
-      
-    } catch (error) {
-      
-    }
-  }
+
   const getUserInfo = async () => {
     try {
       let authToken = localStorage.getItem('authToken');
@@ -79,16 +70,49 @@ const ProfilePage = () => {
       );
       localStorage.setItem("user",JSON.stringify(res.data));
       setUser(res.data);
+      if(res.data && res.data?.role=="seller" ){
       fetchReceiveOrder(res.data.id);
+      }
+      if(res.data && res.data?.role==="buyer"){
+      fetchMyOrders(res.data.id);
+      }
     } catch (error) {
 
     }
   }
 
-  const userData = user;
-  const [ownerProduct,setOwnerProduct] = useState<Product[]>([]);
-  const [buyerOrders,setBuyerOrders] = useState<Order[]>([]);
-  const [sellerOrders,setSellerOrders] = useState<Order[]>([]);
+  const fetchReceiveOrder=async(id:any)=>{
+    try {
+        let authToken = localStorage.getItem('authToken');
+        authToken=JSON.parse(authToken);
+        const res=await axios.get(`${baseUrl}/v1/api/order/list/store/id/${id}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          }});
+          setSellerOrders(res.data);
+      
+    } catch (error) {
+      
+    }
+  }
+
+  const fetchMyOrders=async(id:any)=>{
+    try {
+        let authToken = localStorage.getItem('authToken');
+        authToken=JSON.parse(authToken);
+        const res=await axios.get(`${baseUrl}/v1/api/order/list/user/id/${id}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          }});
+          setBuyerOrders(res.data);
+      
+    } catch (error) {
+      
+    }
+  }
+
+
+ 
 
 const getOwnerproduct = async () => {
 try {
@@ -111,7 +135,6 @@ const handleEditProduct = (product: Product) => {
 
 useEffect(() => {
   if (editingProduct) {
-    console.log("fsadffasdf",editingProduct)
     setShowProductForm(true);
   }
 }, [editingProduct]);
@@ -166,6 +189,18 @@ useEffect(() => {
     // }
 
   };
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+    const handleViewOrder = (order: Order) => {
+      setSelectedOrder(order);
+      setDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+      setDialogOpen(false);
+    };
+  
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -269,7 +304,7 @@ useEffect(() => {
                       
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">{order.city}</h3>
+                          <h3 className="font-medium">OrderId P-0000{order.id}</h3>
                           <Badge variant={
                             order.status === 'delivered' ? 'default' :
                               order.status === 'confirmed' ? 'secondary' :
@@ -279,21 +314,24 @@ useEffect(() => {
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-500">
-                          Quantity: {order.finalprice} • Total: ${order.finalprice.toFixed(2)}
+                        Total: ${order.finalprice.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Ordered on {new Date(order.orderdate).toLocaleDateString()}
+                        Ordered on {format(new Date(order.orderdate), "PPP")}
                         </p>
                         <div className="mt-2 flex justify-between items-center">
                           <p className="text-xs flex items-center">
                             <MapPin size={14} className="mr-1" />
-                            {order.city}, {order.district}
+                            {order.locality},{order.city},{order.district},{order.state},{order.pincode}
                           </p>
                           {order.status === 'pending' && (
                             <Button size="sm" onClick={() => handleConfirmOrder(order.id)}>
                               Confirm Order
                             </Button>
                           )}
+                             <Button size="sm" onClick={() => handleViewOrder(order)}>
+                              View Order
+                            </Button>
                         </div>
                       </div>
                     </div>
@@ -531,6 +569,12 @@ useEffect(() => {
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
         onSave={handleUpdateProfile}
+      />
+
+        <OrderDetailsDialog
+        order={selectedOrder} 
+        open={dialogOpen} 
+        onClose={handleCloseDialog} 
       />
     </div>
   );

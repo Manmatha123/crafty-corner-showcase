@@ -258,15 +258,7 @@ console.log(newOrder);
                 className="mt-1"
               />
             </div>  
-            <div>
-              <Label htmlFor="state">State</Label>
-              <Input
-                id="state"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="mt-1"
-              />
-            </div> 
+
             <div>
               <Label htmlFor="district">District</Label>
               <Input
@@ -277,6 +269,25 @@ console.log(newOrder);
               />
             </div>
           </div>
+          <div>
+              <Label htmlFor="state">State</Label>
+              <Input
+                id="state"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="mt-1"
+              />
+            </div> 
+          <div>
+              <Label htmlFor="pin">Pin Code</Label>
+              <Input
+                id="pin"
+                value={pincode}
+                onChange={(e) => setPincode(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => {

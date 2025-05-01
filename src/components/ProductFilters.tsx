@@ -39,7 +39,7 @@ const ProductFilters = ({
   }, []);
 
   const fetchAllcategory = async () => {
-    const BASE_URL = "http://localhost:8082";
+    const BASE_URL = "http://localhost:8083";
     const res = await axios.get(`${BASE_URL}/v1/api/categories/list`);
     setCategoryList(res.data);
   }

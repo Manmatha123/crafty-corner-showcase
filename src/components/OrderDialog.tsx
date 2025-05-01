@@ -39,13 +39,18 @@ const OrderDialog = ({
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [additionalContact, setAdditionalContact] = useState('');
-  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [locality, setLocality] = useState<string>(user.locality || '');
+  const [pincode, setPincode] = useState<string>(user.pincode || '');
+  const [city, setCity] = useState<string>(user.city || '');
+  const [state, setState] = useState<string>(user.state || '');
+  const [district, setDistrict] = useState<string>(user.district || '');
+
 
   // Get addresses for the current user
   // const userAddresses = user
   //   ? mockUsers.find(u => u.id === user.id)?.addresses || []
   //   : [];
-  const userAddresses=[];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -58,74 +63,75 @@ const OrderDialog = ({
       return;
     }
 
-    if (!selectedAddressId) {
-      toast({
-        title: "Error",
-        description: "Please select a delivery address",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    const selectedAddress = userAddresses.find(addr => addr.id === selectedAddressId);
-    if (!selectedAddress) {
-      toast({
-        title: "Error",
-        description: "Invalid address selected",
-        variant: "destructive",
-      });
-      return;
-    }
+
+ 
 
     // Handle multiple products case
+
+    let overalOrderPrice = 0;
+
     if (products && products.length > 0) {
-      const orders = products.map(item => {
+      const orderProduct = products.map(item => {
         const totalPrice = item.product.price * item.quantity;
+        overalOrderPrice += totalPrice;
         
         return {
-          productId: item.product.id,
-          productName: item.product.name,
-          productImage: item.product.image,
-          quantity: item.quantity,
-          totalPrice,
-          sellerId: item.product.sellerId,
-          buyerId: user.id,
-          status: 'pending',
-          additionalContact,
-          address: selectedAddress,
+            id: null,
+            product: item.product,
+            quantity:item.quantity,
+            price: totalPrice,
         };
       });
 
-      onPlaceOrder(orders);
+      const newOrder: Omit<Order, 'id' | 'orderedAt'> = {
+        orderProducts: orderProduct,
+        orderdate: new Date(),
+        finalprice:overalOrderPrice,
+        seller: products[0].product?.seller,
+        buyer: user,
+        status: 'pending',
+        locality: locality,
+        city: city,
+        state: state,
+        district: district,
+        pincode: pincode
+      };
+console.log(newOrder);
+      onPlaceOrder(newOrder);
     } 
     // Handle single product case
     else if (product) {
       const totalPrice = product.price * quantity;
 
       const newOrder: Omit<Order, 'id' | 'orderedAt'> = {
-        productId: product.id,
-        productName: product.name,
-        productImage: product.image,
-        quantity,
-        totalPrice,
-        sellerId: product.sellerId,
-        buyerId: user.id,
-        status: 'pending',
-        additionalContact,
-        address: selectedAddress,
+        orderProducts: [{
+          id: null,
+          product: product,
+          quantity,
+          price: totalPrice,
+        }],
+       
+        orderdate: new Date(),
+        finalprice:totalPrice,
+        seller: product?.seller,
+        buyer: user,
+        status: 'pending',        
+        locality: locality,
+        city: city,
+        state: state,
+        district: district,
+        pincode: pincode
       };
 
       onPlaceOrder(newOrder);
     }
-    
     resetForm();
     onClose();
   };
 
   const resetForm = () => {
     setQuantity(1);
-    setAdditionalContact('');
-    setSelectedAddressId(userAddresses[0]?.id || '');
   };
 
   // Calculate total price for all products
@@ -138,7 +144,7 @@ const OrderDialog = ({
       resetForm();
       onClose();
     }}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
         <DialogHeader>
           <DialogTitle>Place Order</DialogTitle>
         </DialogHeader>
@@ -154,7 +160,7 @@ const OrderDialog = ({
                     <div className="flex items-center gap-3">
                       <div className="h-16 w-16 rounded overflow-hidden bg-gray-100">
                         <img
-                          src={item.product.image}
+                          src={`data:image/jpeg;base64,${item?.product?.image}`}
                           alt={item.product.name}
                           className="h-full w-full object-cover"
                           onError={(e) => {
@@ -166,12 +172,12 @@ const OrderDialog = ({
                       <div>
                         <h4 className="font-medium">{item.product.name}</h4>
                         <p className="text-sm text-gray-500">
-                          ${item.product.price.toFixed(2)} / {item.product.sellUnit} × {item.quantity}
+                        ₹{item.product.price.toFixed(2)} / {item.product.sellunit} × {item.quantity}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold">${(item.product.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold">₹{(item.product.price * item.quantity).toFixed(2)}</p>
                       {onRemoveProduct && (
                         <Button
                           type="button"
@@ -193,7 +199,7 @@ const OrderDialog = ({
               <div className="flex items-center gap-4">
                 <div className="h-20 w-20 rounded overflow-hidden bg-gray-100">
                   <img
-                    src={product.image}
+                   src={`data:image/jpeg;base64,${product.image}`}
                     alt={product.name}
                     className="h-full w-full object-cover"
                     onError={(e) => {
@@ -204,7 +210,7 @@ const OrderDialog = ({
                 </div>
                 <div>
                   <h3 className="font-medium">{product.name}</h3>
-                  <p className="text-sm text-gray-500">${product.price.toFixed(2)} / {product.sellUnit}</p>
+                  <p className="text-sm text-gray-500">₹{product.price.toFixed(2)} / {product.sellunit}</p>
                 </div>
               </div>
             )}
@@ -212,7 +218,7 @@ const OrderDialog = ({
             {/* Show quantity field only for single product */}
             {product && !products && (
               <div>
-                <Label htmlFor="quantity">Quantity ({product.sellUnit})</Label>
+                <Label htmlFor="quantity">Quantity ({product.sellunit})</Label>
                 <Input
                   id="quantity"
                   type="number"
@@ -232,41 +238,41 @@ const OrderDialog = ({
                 disabled
                 className="mt-1"
               />
-            </div>
+            </div>      
 
+               <div>
+              <Label htmlFor="locality">Locality</Label>
+              <Input
+                id="locality"
+                value={locality}
+                onChange={(e) => setLocality(e.target.value)}
+                className="mt-1"
+              />
+            </div>  
             <div>
-              <Label htmlFor="address">Delivery Address</Label>
-              {userAddresses.length > 0 ? (
-                <Select 
-                  value={selectedAddressId} 
-                  onValueChange={setSelectedAddressId}
-                >
-                  <SelectTrigger id="address" className="mt-1">
-                    <SelectValue placeholder="Select delivery address" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {userAddresses.map((address) => (
-                      <SelectItem key={address.id} value={address.id}>
-                        {address.street}, {address.city}, {address.state} {address.zipCode}
-                        {address.isDefault && " (Default)"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <p className="text-sm text-red-500 mt-1">
-                  No address found. Please add an address in your profile.
-                </p>
-              )}
-            </div>
-
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="mt-1"
+              />
+            </div>  
             <div>
-              <Label htmlFor="additional-contact">Additional Contact Information (Optional)</Label>
-              <Textarea
-                id="additional-contact"
-                placeholder="Any special instructions or additional contact details"
-                value={additionalContact}
-                onChange={(e) => setAdditionalContact(e.target.value)}
+              <Label htmlFor="state">State</Label>
+              <Input
+                id="state"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="mt-1"
+              />
+            </div> 
+            <div>
+              <Label htmlFor="district">District</Label>
+              <Input
+                id="district"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
                 className="mt-1"
               />
             </div>
@@ -279,7 +285,7 @@ const OrderDialog = ({
             }}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!user || userAddresses.length === 0}>
+            <Button type="submit" disabled={!user}>
               Place Order
             </Button>
           </DialogFooter>

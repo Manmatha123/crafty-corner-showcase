@@ -31,6 +31,9 @@ const formSchema = z.object({
   state: z.string().min(2, "State must be at least 2 characters"),
   district: z.string().min(2, "District must be at least 2 characters"),
   profileImage: z.string().optional(),
+  userAdditional: z.object({
+    customorder: z.boolean(),
+  }).optional(),
 });
 
 interface EditProfileDialogProps {
@@ -52,6 +55,7 @@ export function EditProfileDialog({ user, isOpen, onClose, onSave }: EditProfile
       state: user?.state || "",
       district: user?.district || "",
       profileImage: user?.profileImage || "",
+      userAdditional: user?.userAdditional || null
     },
   });
 
@@ -158,6 +162,30 @@ export function EditProfileDialog({ user, isOpen, onClose, onSave }: EditProfile
                 </FormItem>
               )}
             />
+            {
+              user && user.role === "seller" && (
+                <FormField
+                control={form.control}
+                name="userAdditional.customorder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Custom Order</FormLabel>
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        style={{ width: "20px", height: "20px",position:"relative",top:"5px" }}
+                        checked={field.value || false}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                        className="form-checkbox ml-2  w-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              )
+            }
+           
             <DialogFooter>
               <Button type="submit">Save changes</Button>
             </DialogFooter>

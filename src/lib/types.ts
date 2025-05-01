@@ -26,6 +26,12 @@ export interface User {
   city?: string;
   state?: string;
   district?: string;
+  userAdditional:AditionalUserInfo;
+}
+
+export interface AditionalUserInfo {
+  id: number;
+  customorder: boolean;
 }
 
 export interface Address {
@@ -39,18 +45,29 @@ export interface Address {
 
 export interface Order {
   id: string;
-  productId: string;
-  productName: string;
-  productImage: string;
-  quantity: number;
-  totalPrice: number;
-  sellerId: string;
-  buyerId: string;
+  orderProducts: OrderProduct[];
+  orderdate: Date;
+  finalprice: number;
+  seller: User;
+  buyer: User;
   status: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
-  additionalContact?: string;
-  address: Address;
-  orderedAt: string;
+
+  locality: String;
+  city: String;
+  state: String;
+  district: String;
+  pincode: String;
+  // orderedAt: string;
 }
+
+
+export interface OrderProduct{
+  id: string;
+  product:Product;
+  quantity: number;
+  price: number;
+} 
+
 
 export type AuthUser = {
   id: string;

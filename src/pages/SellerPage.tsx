@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
@@ -7,35 +7,54 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useProducts } from '@/contexts/ProductContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Product } from '@/lib/types';
+import { Product, User as MyUser } from '@/lib/types';
 import { mockUsers } from '@/lib/mockData';
-import { ArrowLeft, User, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import axios from 'axios';
 
 const SellerPage = () => {
   const { sellerId } = useParams<{ sellerId: string }>();
   const { products, addOrder } = useProducts();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
+  const [productList, setproductList] = useState<Product[]>([]);
+  const [sellerInfo, setsellerInfo] = useState<MyUser>();
   const [selectedProducts, setSelectedProducts] = useState<{ product: Product; quantity: number }[]>([]);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
 
-  const sellerInfo = useMemo(() => {
-    return sellerId ? mockUsers.find(u => u.id === sellerId) : null;
+  useEffect(() => {
+    if (sellerId && sellerId != null) {
+      getchSellerById();
+      fetchSellerProducts();
+    }
   }, [sellerId]);
 
-  const sellerProducts = useMemo(() => {
-    return sellerId ? products.filter(p => p.sellerId === sellerId) : [];
-  }, [sellerId, products]);
+  const getchSellerById = async () => {
+    const BASE_URL = "http://localhost:8083";
+    try {
+      const res = await axios.get(`${BASE_URL}/v1/api/user/id/${sellerId}`);
+      setsellerInfo(res.data);
+    } catch (error) {
+    }
+  }
+
+  const fetchSellerProducts = async () => {
+    const BASE_URL = "http://localhost:8083";
+    try {
+      const res = await axios.get(`${BASE_URL}/v1/public/api/product/seller-products/id/${sellerId}`);
+      setproductList(res.data);
+    } catch (error) {
+    }
+  }
 
   const handleOrderClick = (product: Product, quantity: number) => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
+
     const existingProduct = selectedProducts.find(p => p.product.id === product.id);
     if (existingProduct) {
       setSelectedProducts(prevProducts =>
@@ -53,16 +72,14 @@ const SellerPage = () => {
   };
 
   const handlePlaceOrder = (orders: any) => {
-    orders.forEach((order: any) => {
-      addOrder(order);
-    });
+      addOrder(orders);
     setSelectedProducts([]);
     setIsOrderDialogOpen(false);
   };
 
   const cartItemsCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
 
-  if (!sellerId || !sellerInfo) {
+  if (!sellerInfo || sellerInfo == null) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -89,9 +106,9 @@ const SellerPage = () => {
             <ArrowLeft size={16} className="mr-1" />
             Back to all products
           </Link>
-          
+
           {selectedProducts.length > 0 && (
-            <Button 
+            <Button
               onClick={() => setIsOrderDialogOpen(true)}
               className="flex items-center gap-2"
             >
@@ -110,7 +127,7 @@ const SellerPage = () => {
               <div className="ml-4">
                 <h1 className="text-2xl font-bold">{sellerInfo.name}</h1>
                 <p className="text-gray-500">Seller</p>
-                <p className="text-sm text-gray-500 mt-1">Location: {sellerProducts[0]?.location || 'Unknown'}</p>
+                <p className="text-sm text-gray-500 mt-1">Location: {`${sellerInfo?.locality},${sellerInfo?.city},${sellerInfo?.district},${sellerInfo?.state}` || 'Unknown'}</p>
               </div>
             </div>
           </CardContent>
@@ -118,14 +135,14 @@ const SellerPage = () => {
 
         <h2 className="text-xl font-semibold mb-6">Products by {sellerInfo.name}</h2>
 
-        {sellerProducts.length > 0 ? (
+        {productList.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sellerProducts.map(product => {
+            {productList && productList.map(product => {
               const cartItem = selectedProducts.find(p => p.product.id === product.id);
               return (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   onOrder={handleOrderClick}
                   quantityInCart={cartItem?.quantity}
                 />

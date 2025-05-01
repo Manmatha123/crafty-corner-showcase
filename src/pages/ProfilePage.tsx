@@ -30,7 +30,7 @@ const ProfilePage = () => {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<User>();
-  const baseUrl = 'http://localhost:8082';
+  const baseUrl = 'http://localhost:8083';
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -47,8 +47,26 @@ const ProfilePage = () => {
     }
     getUserInfo();
     getOwnerproduct();
+    fetchReceiveOrder();
   }, []);
 
+  const fetchReceiveOrder=async()=>{
+    try {
+      const BASE_URL="http://localhost:8083";
+      if(user && user.role=="seller"){
+        let authToken = localStorage.getItem('authToken');
+        authToken=JSON.parse(authToken);
+        const res=await axios.get(`${BASE_URL}/v1/api/order/list/store/id/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          }});
+          setBuyerOrders(res.data);
+      }
+      
+    } catch (error) {
+      
+    }
+  }
   const getUserInfo = async () => {
     try {
       let authToken = localStorage.getItem('authToken');
@@ -68,7 +86,7 @@ const ProfilePage = () => {
 
   const userData = user;
   const [ownerProduct,setOwnerProduct] = useState<Product[]>([]);
-  const buyerOrders = [];
+  const [buyerOrders,setBuyerOrders] = useState<Order[]>([]);
   const sellerOrders = [];
 
 const getOwnerproduct = async () => {
@@ -158,7 +176,7 @@ useEffect(() => {
               buyerOrders.map(order => (
                 <Card key={order.id} className="animate-fade-in">
                   <CardContent className="p-4">
-                    <div className="grid grid-cols-[80px_1fr] gap-4">
+                    {/* <div className="grid grid-cols-[80px_1fr] gap-4">
                       <div className="h-20 w-20 bg-gray-100 rounded overflow-hidden">
                         <img
                           src={order.productImage}
@@ -192,7 +210,7 @@ useEffect(() => {
                           {order.address.street}, {order.address.city}
                         </p>
                       </div>
-                    </div>
+                    </div> */}
                   </CardContent>
                 </Card>
               ))
@@ -363,6 +381,10 @@ useEffect(() => {
       const userObj:User={
         ...updatedProfile,
         id: user.id,
+        userAdditional: {
+          ...updatedProfile.userAdditional,
+          id: user?.userAdditional?.id, // Add the id of userAdditional if it exists
+        },
       }
       const res = await axios.post(`${baseUrl}/v1/api/user/update`, userObj, {
         headers: {

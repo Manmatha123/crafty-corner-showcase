@@ -34,7 +34,7 @@ export const useProducts = () => {
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const [orders, setOrders] = useState<Order[]>();
   const { toast } = useToast();
   const { user } = useAuth();
   const setFilteredProducts = (filtered: Product[]) => {
@@ -109,14 +109,25 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   };
 
-  const addOrder = (order: Omit<Order, 'id' | 'orderedAt'>) => {
+  const addOrder = async(order: Omit<Order, 'id' | 'orderedAt'>) => {
     const newOrder: Order = {
       ...order,
-      id: `order_${Date.now()}`,
-      orderedAt: new Date().toISOString(),
+      id: null,
     };
+const authtoken= localStorage.getItem('authToken');
+const token=JSON.parse(authtoken);
+if(!token) {
+  console.error('Please login');
+  return;
+}
 
-    setOrders([...orders, newOrder]);
+    const res=await axios.post('http://localhost:8083/v1/api/order/saveorupdate', newOrder, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    }}  
+    );
+   
     toast({
       title: "Success",
       description: "Order placed successfully",
@@ -137,11 +148,11 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const getOrdersByBuyerId = (buyerId: string) => {
-    return orders.filter(order => order.buyerId === buyerId);
+    return orders;
   };
 
   const getOrdersBySellerId = (sellerId: string) => {
-    return orders.filter(order => order.sellerId === sellerId);
+    return orders;
   };
 
   return (

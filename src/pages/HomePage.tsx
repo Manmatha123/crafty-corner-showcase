@@ -44,7 +44,7 @@ const HomePage = () => {
         let authToken = localStorage.getItem("authToken");
         authToken = JSON.parse(authToken);
         const responsedata = await axios.post(
-          "http://localhost:8083/v1/public/api/product/filter",
+          "http://localhost:8082/v1/public/api/product/filter",
           {
             name: searchTerm || null,
             category: category==null? null : category ,

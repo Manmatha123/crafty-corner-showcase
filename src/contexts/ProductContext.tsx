@@ -71,7 +71,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     let authToken = localStorage.getItem('authToken');
     authToken = JSON.parse(authToken);
 
-    const res = await axios.post('http://localhost:8083/v1/api/product/saveorupdate', formData, {
+    const res = await axios.post('http://localhost:8082/v1/api/product/saveorupdate', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${authToken}`
@@ -88,7 +88,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteProduct = async (productId: string) => {
     let authToken = localStorage.getItem('authToken');
     authToken = JSON.parse(authToken);
-    const res = await axios.delete(`http://localhost:8083/v1/api/product/delete/id/${productId}`, {
+    const res = await axios.delete(`http://localhost:8082/v1/api/product/delete/id/${productId}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       }
@@ -121,7 +121,7 @@ if(!token) {
   return;
 }
 
-    const res=await axios.post('http://localhost:8083/v1/api/order/saveorupdate', newOrder, {
+    const res=await axios.post('http://localhost:8082/v1/api/order/saveorupdate', newOrder, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`

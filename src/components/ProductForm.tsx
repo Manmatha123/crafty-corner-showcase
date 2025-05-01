@@ -44,7 +44,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
       console.error('Please login');
       return;
     }
-    const res = await axios.get(`http://localhost:8083/v1/api/categories/list`, {
+    const res = await axios.get(`http://localhost:8082/v1/api/categories/list`, {
       headers: {
         Authorization: `Bearer ${token}`,
       }

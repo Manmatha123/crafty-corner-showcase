@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
   const isAuthenticated = !!token;
-  const baseUrl = "http://localhost:8083";
+  const baseUrl = "http://localhost:8082";
   // process.env.NEXT_PUBLIC_API_URL ||
   useEffect(() => {
     // Check for stored user on initial load

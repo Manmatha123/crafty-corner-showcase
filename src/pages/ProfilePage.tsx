@@ -30,7 +30,7 @@ const ProfilePage = () => {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<User>();
-  const baseUrl = 'http://localhost:8083';
+  const baseUrl = 'http://localhost:8082';
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -47,21 +47,21 @@ const ProfilePage = () => {
     }
     getUserInfo();
     getOwnerproduct();
-    fetchReceiveOrder();
+    
   }, []);
 
-  const fetchReceiveOrder=async()=>{
+  const fetchReceiveOrder=async(id:any)=>{
     try {
-      const BASE_URL="http://localhost:8083";
-      if(user && user?.role==="seller"){
+      const BASE_URL="http://localhost:8082";
+      // if(user && user?.role==="seller"){
         let authToken = localStorage.getItem('authToken');
         authToken=JSON.parse(authToken);
-        const res=await axios.get(`${BASE_URL}/v1/api/order/list/store/id/${user.id}`, {
+        const res=await axios.get(`${BASE_URL}/v1/api/order/list/store/id/${id}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           }});
           setSellerOrders(res.data);
-      }
+      // }
       
     } catch (error) {
       
@@ -79,6 +79,7 @@ const ProfilePage = () => {
       );
       localStorage.setItem("user",JSON.stringify(res.data));
       setUser(res.data);
+      fetchReceiveOrder(res.data.id);
     } catch (error) {
 
     }

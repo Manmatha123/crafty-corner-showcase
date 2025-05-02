@@ -24,6 +24,7 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
+const BASE_URL="http://localhost:8083";
 export const useProducts = () => {
   const context = useContext(ProductContext);
   if (context === undefined) {
@@ -43,27 +44,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   
 
   const addProduct = (product: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
-    // if (!user) {
-    //   toast({
-    //     title: "Error",
-    //     description: "You must be logged in to add products",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
-
-    // const newProduct: Product = {
-    //   ...product,
-    //   id: `product_${Date.now()}`,
-    //   sellerId: user.id,
-    //   sellerName: user.name,
-    // };
-
-    // setProducts([...products, newProduct]);
-    // toast({
-    //   title: "Success",
-    //   description: "Product added successfully",
-    // });
+ 
   };
 
   const updateProduct = async (formData: FormData) => {
@@ -71,7 +52,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     let authToken = localStorage.getItem('authToken');
     authToken = JSON.parse(authToken);
 
-    const res = await axios.post('http://localhost:8083/v1/api/product/saveorupdate', formData, {
+    const res = await axios.post(`${BASE_URL}/v1/api/product/saveorupdate`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${authToken}`
@@ -88,7 +69,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteProduct = async (productId: string) => {
     let authToken = localStorage.getItem('authToken');
     authToken = JSON.parse(authToken);
-    const res = await axios.delete(`http://localhost:8083/v1/api/product/delete/id/${productId}`, {
+    const res = await axios.delete(`${BASE_URL}/v1/api/product/delete/id/${productId}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       }
@@ -121,7 +102,7 @@ if(!token) {
   return;
 }
 
-    const res=await axios.post('http://localhost:8083/v1/api/order/saveorupdate', newOrder, {
+    const res=await axios.post(`${BASE_URL}/v1/api/order/saveorupdate`, newOrder, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -134,12 +115,33 @@ if(!token) {
     });
   };
 
-  const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(orders.map(o => o.id === orderId ? { ...o, status } : o));
-    toast({
-      title: "Success",
-      description: `Order status updated to ${status}`,
-    });
+  const updateOrderStatus = async(orderId: any, status: Order['status']) => {
+    
+    const authtoken= localStorage.getItem('authToken');
+    const token=JSON.parse(authtoken);
+    if(!token) {
+      console.error('Please login');
+      return;
+    }
+    
+        const res=await axios.get(`${BASE_URL}/v1/api/order/status/id/${orderId}/${status}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }}  
+        );
+        if(res.data.status){
+          toast({
+            title: "Success",
+            description: `Order status updated to ${status}`,
+          });
+        }else{
+          toast({
+            title: "Error",
+            description: `Something went wrong`,
+          });
+        }
+
   };
 
   const getProductsByOwnerId = (ownerId: string) => {

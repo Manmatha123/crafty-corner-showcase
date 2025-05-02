@@ -34,9 +34,9 @@ const ProfilePage = () => {
   const [user, setUser] = useState<User>();
   const baseUrl = 'http://localhost:8083';
   const userData = user;
-  const [ownerProduct,setOwnerProduct] = useState<Product[]>([]);
-  const [buyerOrders,setBuyerOrders] = useState<Order[]>([]);
-  const [sellerOrders,setSellerOrders] = useState<Order[]>([]);
+  const [ownerProduct, setOwnerProduct] = useState<Product[]>([]);
+  const [buyerOrders, setBuyerOrders] = useState<Order[]>([]);
+  const [sellerOrders, setSellerOrders] = useState<Order[]>([]);
 
 
   useEffect(() => {
@@ -54,102 +54,105 @@ const ProfilePage = () => {
     }
     getUserInfo();
     getOwnerproduct();
-    
+
   }, []);
 
 
   const getUserInfo = async () => {
     try {
       let authToken = localStorage.getItem('authToken');
-      authToken=JSON.parse(authToken);
+      authToken = JSON.parse(authToken);
       const res = await axios.get(`${baseUrl}/v1/api/user/info`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         }
       }
       );
-      localStorage.setItem("user",JSON.stringify(res.data));
+      localStorage.setItem("user", JSON.stringify(res.data));
       setUser(res.data);
-      if(res.data && res.data?.role=="seller" ){
-      fetchReceiveOrder(res.data.id);
+      if (res.data && res.data?.role == "seller") {
+        fetchReceiveOrder(res.data.id);
+        setActiveTab('orders-received')
       }
-      if(res.data && res.data?.role==="buyer"){
-      fetchMyOrders(res.data.id);
+      if (res.data && res.data?.role === "buyer") {
+        fetchMyOrders(res.data.id);
       }
     } catch (error) {
 
     }
   }
 
-  const fetchReceiveOrder=async(id:any)=>{
+  const fetchReceiveOrder = async (id: any) => {
     try {
-        let authToken = localStorage.getItem('authToken');
-        authToken=JSON.parse(authToken);
-        const res=await axios.get(`${baseUrl}/v1/api/order/list/store/id/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          }});
-          setSellerOrders(res.data);
-      
+      let authToken = localStorage.getItem('authToken');
+      authToken = JSON.parse(authToken);
+      const res = await axios.get(`${baseUrl}/v1/api/order/list/store/id/${id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+      setSellerOrders(res.data);
+
     } catch (error) {
-      
+
     }
   }
 
-  const fetchMyOrders=async(id:any)=>{
+  const fetchMyOrders = async (id: any) => {
     try {
-        let authToken = localStorage.getItem('authToken');
-        authToken=JSON.parse(authToken);
-        const res=await axios.get(`${baseUrl}/v1/api/order/list/user/id/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          }});
-          setBuyerOrders(res.data);
-      
+      let authToken = localStorage.getItem('authToken');
+      authToken = JSON.parse(authToken);
+      const res = await axios.get(`${baseUrl}/v1/api/order/list/user/id/${id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+      setBuyerOrders(res.data);
+
     } catch (error) {
-      
+
     }
   }
 
 
- 
 
-const getOwnerproduct = async () => {
-try {
-  let authToken = localStorage.getItem('authToken');
-  authToken=JSON.parse(authToken);
-  const res= await axios.get(`${baseUrl}/v1/api/product/owner-products`, {
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-    },
-  });
-  setOwnerProduct(res.data);
-} catch (error) {
-  
-}
-}
 
-const handleEditProduct = (product: Product) => {
-  setEditingProduct(product); 
-};
+  const getOwnerproduct = async () => {
+    try {
+      let authToken = localStorage.getItem('authToken');
+      authToken = JSON.parse(authToken);
+      const res = await axios.get(`${baseUrl}/v1/api/product/owner-products`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      setOwnerProduct(res.data);
+    } catch (error) {
 
-useEffect(() => {
-  if (editingProduct) {
-    setShowProductForm(true);
+    }
   }
-}, [editingProduct]);
 
-  const handleUpdateProduct = async(updatedProduct: Omit<Product, 'id' >,imgfile:File) => {
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+  };
+
+  useEffect(() => {
+    if (editingProduct) {
+      setShowProductForm(true);
+    }
+  }, [editingProduct]);
+
+  const handleUpdateProduct = async (updatedProduct: Omit<Product, 'id'>, imgfile: File) => {
     let product: Product = {
       ...updatedProduct,
-      id: editingProduct?.id || null, 
+      id: editingProduct?.id || null,
     }
     if (editingProduct) {
       product = {
         ...editingProduct,
         ...updatedProduct
-     }
-   }
+      }
+    }
 
     const formData = new FormData();
 
@@ -160,47 +163,48 @@ useEffect(() => {
       const emptyImage = new Blob([], { type: 'image/png' }); // Create an empty image file
       formData.append('file', emptyImage, 'placeholder.png'); // Append it with a default name
     }
-  
+
     formData.append('product', new Blob([JSON.stringify(product)], { type: 'application/json' }));
-  
- await updateProduct(formData);
- getOwnerproduct();
- 
+
+    await updateProduct(formData);
+    getOwnerproduct();
+
   };
 
-  const handleDeleteProduct = async(productId: string) => {
+  const handleDeleteProduct = async (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-    await  deleteProduct(productId);
-    getOwnerproduct();
+      await deleteProduct(productId);
+      getOwnerproduct();
     }
   };
 
-  const handleConfirmOrder = (orderId: string) => {
-    updateOrderStatus(orderId, 'confirmed');
+  const handleConfirmOrder = async (orderId: string, status: Order['status']) => {
+    await updateOrderStatus(orderId, status);
+    fetchReceiveOrder(user.id);
   };
-
-  const handleSaveProduct = (product: Omit<Product, 'id' >,imgfile:File) => {
+  // pending' | 'confirmed' | 'delivered' | 'cancelled';
+  const handleSaveProduct = (product: Omit<Product, 'id'>, imgfile: File) => {
     // if (editingProduct) {
-     
-      handleUpdateProduct({...product,seller:user},imgfile);
+
+    handleUpdateProduct({ ...product, seller: user }, imgfile);
 
     // } else {
-      // handleAddProduct(product);
+    // handleAddProduct(product);
     // }
 
   };
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-    const handleViewOrder = (order: Order) => {
-      setSelectedOrder(order);
-      setDialogOpen(true);
-    };
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setDialogOpen(true);
+  };
 
-    const handleCloseDialog = () => {
-      setDialogOpen(false);
-    };
-  
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -212,11 +216,11 @@ useEffect(() => {
               buyerOrders.map(order => (
                 <Card key={order.id} className="animate-fade-in">
                   <CardContent className="p-4">
-                    {/* <div className="grid grid-cols-[80px_1fr] gap-4">
+                    <div className="grid grid-cols-[80px_1fr] gap-4">
                       <div className="h-20 w-20 bg-gray-100 rounded overflow-hidden">
                         <img
-                          src={order.productImage}
-                          alt={order.productName}
+                          src={`data:image/jpeg;base64,${order?.orderProducts[0]?.product?.image}`}
+                          alt="orderdata"
                           className="h-full w-full object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -224,9 +228,10 @@ useEffect(() => {
                           }}
                         />
                       </div>
+
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">{order.productName}</h3>
+                          <h3 className="font-medium">OrderId P-00000{order.id}</h3>
                           <Badge variant={
                             order.status === 'delivered' ? 'default' :
                               order.status === 'confirmed' ? 'secondary' :
@@ -236,17 +241,22 @@ useEffect(() => {
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-500">
-                          Quantity: {order.quantity} • Total: ${order.totalPrice.toFixed(2)}
+                          Total: ₹{order.finalprice.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Ordered on {new Date(order.orderedAt).toLocaleDateString()}
+                          Ordered on {format(new Date(order.orderdate), "PPP")}
                         </p>
-                        <p className="text-xs mt-2 flex items-center">
-                          <MapPin size={14} className="mr-1" />
-                          {order.address.street}, {order.address.city}
-                        </p>
+                        <div className="mt-2 flex justify-between items-center">
+                          <p className="text-xs flex items-center">
+                            <MapPin size={14} className="mr-1" />
+                            {order.locality},{order.city},{order.district},{order.state},{order.pincode}
+                          </p>
+                          <Button size="sm" onClick={() => handleViewOrder(order)}>
+                            View Order
+                          </Button>
+                        </div>
                       </div>
-                    </div> */}
+                    </div>
                   </CardContent>
                 </Card>
               ))
@@ -292,7 +302,7 @@ useEffect(() => {
                     <div className="grid grid-cols-[80px_1fr] gap-4">
                       <div className="h-20 w-20 bg-gray-100 rounded overflow-hidden">
                         <img
-                           src={`data:image/jpeg;base64,${order?.orderProducts[0]?.product?.image}`}
+                          src={`data:image/jpeg;base64,${order?.orderProducts[0]?.product?.image}`}
                           alt="orderdata"
                           className="h-full w-full object-cover"
                           onError={(e) => {
@@ -301,37 +311,46 @@ useEffect(() => {
                           }}
                         />
                       </div>
-                      
+
                       <div>
                         <div className="flex justify-between items-start">
                           <h3 className="font-medium">OrderId P-0000{order.id}</h3>
                           <Badge variant={
                             order.status === 'delivered' ? 'default' :
                               order.status === 'confirmed' ? 'secondary' :
+                                order.status === 'cancelled' ? 'destructive' :
                                 'outline'
                           }>
                             {order.status}
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-500">
-                        Total: ${order.finalprice.toFixed(2)}
+                          Total: ₹{order.finalprice.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                        Ordered on {format(new Date(order.orderdate), "PPP")}
+                          Ordered on {format(new Date(order.orderdate), "PPP")}
                         </p>
                         <div className="mt-2 flex justify-between items-center">
                           <p className="text-xs flex items-center">
                             <MapPin size={14} className="mr-1" />
                             {order.locality},{order.city},{order.district},{order.state},{order.pincode}
                           </p>
-                          {order.status === 'pending' && (
-                            <Button size="sm" onClick={() => handleConfirmOrder(order.id)}>
-                              Confirm Order
-                            </Button>
-                          )}
-                             <Button size="sm" onClick={() => handleViewOrder(order)}>
-                              View Order
-                            </Button>
+                          <div className="mt-2 flex justify-between gap-2 items-center">
+                            {order.status === 'pending' && (
+                              <>
+                            <Button size="sm" onClick={() => handleConfirmOrder(order.id,'confirmed')}> Confirm</Button>
+                             <Button size="sm" style={{background:"red"}} onClick={() => handleConfirmOrder(order.id,'cancelled')}>Cancel</Button>
+                               </>
+                            )}
+                            {order.status === 'confirmed' && (
+                            <>
+                            <Button size="sm" onClick={() => handleConfirmOrder(order.id,'delivered')}> Deliver</Button>
+                               </>
+                            )}
+
+                            <Button size="sm" onClick={() => handleViewOrder(order)}><i className="fa-regular fa-eye"/></Button>
+
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -381,7 +400,7 @@ useEffect(() => {
                             <Badge>{product?.category?.name}</Badge>
                           </div>
                           <p className="text-sm text-gray-500">
-                          ₹{product.price.toFixed(2)} / {product.sellunit}
+                            ₹{product.price.toFixed(2)} / {product.sellunit}
                           </p>
                           <div className="mt-2 flex justify-end space-x-2">
                             <Button size="sm" variant="outline" onClick={() => handleEditProduct(product)}>
@@ -418,7 +437,7 @@ useEffect(() => {
 
   const handleUpdateProfile = async (updatedProfile: Omit<User, 'id'>) => {
     try {
-      const userObj:User={
+      const userObj: User = {
         ...updatedProfile,
         id: user.id,
         userAdditional: {
@@ -558,8 +577,10 @@ useEffect(() => {
       <ProductForm
         product={editingProduct}
         isOpen={showProductForm}
-        onClose={() => {setShowProductForm(false)
-          setEditingProduct(null)}
+        onClose={() => {
+          setShowProductForm(false)
+          setEditingProduct(null)
+        }
         }
         onSave={handleSaveProduct}
       />
@@ -571,10 +592,10 @@ useEffect(() => {
         onSave={handleUpdateProfile}
       />
 
-        <OrderDetailsDialog
-        order={selectedOrder} 
-        open={dialogOpen} 
-        onClose={handleCloseDialog} 
+      <OrderDetailsDialog
+        order={selectedOrder}
+        open={dialogOpen}
+        onClose={handleCloseDialog}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { User, Product, Order } from './types';
+import { User, Product, Order,ProductC } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -133,3 +133,15 @@ export const mockOrders: Order[] = [
 
 export const allCategories = ["All", "Fruits", "Vegetables", "Dairy", "Meat", "Bakery", "Beverages"];
 export const allLocations = ["All", "New York", "Los Angeles", "Chicago", "Miami"];
+
+
+export const mockProductCs: ProductC[]  = [
+  { id: "101", name: "Organic Rice", price: 120, category: "Groceries" },
+  { id: "102", name: "Bamboo Toothbrush", price: 40, category: "Personal Care" },
+  { id: "103", name: "Reusable Bags", price: 80, category: "Home" },
+  { id: "104", name: "Eco-friendly Dishwash", price: 100, category: "Kitchen" },
+  { id: "105", name: "Organic Tea", price: 60, category: "Groceries" },
+  { id: "106", name: "Natural Shampoo", price: 150, category: "Personal Care" },
+  { id: "107", name: "Hemp Sandals", price: 250, category: "Fashion" },
+  { id: "108", name: "Solar Charger", price: 350, category: "Electronics" }
+];

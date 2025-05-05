@@ -1,8 +1,10 @@
 
 import HomePage from './HomePage';
+import SecIndex from '../Secondapp/Index'
+
 
 const Index = () => {
-  return <HomePage />;
+  return <SecIndex />;
 };
 
 export default Index;

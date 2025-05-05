@@ -33,13 +33,13 @@ const ProductFilters = ({
   maxPrice
 }: ProductFiltersProps) => {
   const [categoryList, setCategoryList] = useState<Category[]>([]);
+  const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchAllcategory();
   }, []);
-
+ 
   const fetchAllcategory = async () => {
-    const BASE_URL = "http://localhost:8083";
     const res = await axios.get(`${BASE_URL}/v1/api/categories/list`);
     setCategoryList(res.data);
   }

@@ -24,7 +24,8 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const BASE_URL="http://localhost:8083";
+
+const BASE_URL = import.meta.env.VITE_API_URL;
 export const useProducts = () => {
   const context = useContext(ProductContext);
   if (context === undefined) {

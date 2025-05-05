@@ -13,6 +13,7 @@ import { ArrowLeft, ShoppingBag, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
+import CustomOrderButton from '@/components/CustomOrderButton';
 
 const SellerPage = () => {
   const { sellerId } = useParams<{ sellerId: string }>();
@@ -24,6 +25,8 @@ const SellerPage = () => {
   const [selectedProducts, setSelectedProducts] = useState<{ product: Product; quantity: number }[]>([]);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     if (sellerId && sellerId != null) {
       getchSellerById();
@@ -32,7 +35,7 @@ const SellerPage = () => {
   }, [sellerId]);
 
   const getchSellerById = async () => {
-    const BASE_URL = "http://localhost:8083";
+   
     try {
       const res = await axios.get(`${BASE_URL}/v1/api/user/id/${sellerId}`);
       setsellerInfo(res.data);
@@ -41,7 +44,6 @@ const SellerPage = () => {
   }
 
   const fetchSellerProducts = async () => {
-    const BASE_URL = "http://localhost:8083";
     try {
       const res = await axios.get(`${BASE_URL}/v1/public/api/product/seller-products/id/${sellerId}`);
       setproductList(res.data);
@@ -75,6 +77,14 @@ const SellerPage = () => {
       addOrder(orders);
     setSelectedProducts([]);
     setIsOrderDialogOpen(false);
+  };
+
+  
+  const handleCustomOrderClick = () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      navigate('/login');
+    }
   };
 
   const cartItemsCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
@@ -131,6 +141,10 @@ const SellerPage = () => {
               </div>
             </div>
           </CardContent>
+          <div className='d-flex p-2' style={{width:"100%",justifyContent:"right"}}  onClick={handleCustomOrderClick}>
+            <CustomOrderButton seller={sellerInfo} />
+          </div>
+          
         </Card>
 
         <h2 className="text-xl font-semibold mb-6">Products by {sellerInfo.name}</h2>

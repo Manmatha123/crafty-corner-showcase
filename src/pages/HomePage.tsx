@@ -8,12 +8,14 @@ import { Category, Product } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import CustomOrderButton from "@/components/CustomOrderButton";
 
 const HomePage = () => {
   const { products, addOrder, setFilteredProducts } = useProducts();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState<Category>(null);
@@ -44,13 +46,13 @@ const HomePage = () => {
         let authToken = localStorage.getItem("authToken");
         authToken = JSON.parse(authToken);
         const responsedata = await axios.post(
-          "http://localhost:8083/v1/public/api/product/filter",
+          `${BASE_URL}/v1/public/api/product/filter`,
           {
             name: searchTerm || null,
-            category: category==null? null : category ,
+            category: category == null ? null : category,
             location: location === "All Locations" ? null : location,
             minPrice: priceRange[0],
-            maxPrice:priceRange[1]
+            maxPrice: priceRange[1],
           }
         );
         if (responsedata.data) {
@@ -64,7 +66,7 @@ const HomePage = () => {
   }, [searchTerm, category, location, priceRange]);
 
   // Apply filters
-const filteredProducts=products;
+  const filteredProducts = products;
 
   const handleOrderClick = (product: Product, quantity: number) => {
     if (!isAuthenticated) {
@@ -96,23 +98,22 @@ const filteredProducts=products;
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-  <div className="lg:col-span-1">
-    <ProductFilters
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      category={category}
-      setCategory={setCategory}
-      location={location}
-      setLocation={setLocation}
-      priceRange={priceRange}
-      setPriceRange={(value) => {
-        setPriceRange(value); // Correctly update the state
-        console.log(value); // Log the updated value for debugging
-      }}
-      maxPrice={10000}
-    />
-  </div>
-
+          <div className="lg:col-span-1">
+            <ProductFilters
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              category={category}
+              setCategory={setCategory}
+              location={location}
+              setLocation={setLocation}
+              priceRange={priceRange}
+              setPriceRange={(value) => {
+                setPriceRange(value); // Correctly update the state
+                console.log(value); // Log the updated value for debugging
+              }}
+              maxPrice={10000}
+            />
+          </div>
 
           <div className="lg:col-span-3">
             {filteredProducts.length > 0 ? (
@@ -149,6 +150,7 @@ const filteredProducts=products;
           onPlaceOrder={handlePlaceOrder}
         />
       )}
+     
     </div>
   );
 };

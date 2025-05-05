@@ -12,7 +12,6 @@ import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import SellerPage from "./pages/SellerPage";
 import NotFound from "./pages/NotFound";
-import Shop from './pages/HomePage';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +30,7 @@ const App = () => (
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/seller/:sellerId" element={<SellerPage />} />
+              {/* <Route path="/custom" element={<CustomOrder />} /> */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

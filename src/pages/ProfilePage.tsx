@@ -11,12 +11,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProducts } from '@/contexts/ProductContext';
 import { Address, Order, Product, User } from '@/lib/types';
 import { mockUsers } from '@/lib/mockData';
-import { MapPin, ShoppingBag, Box, Plus, Edit, Package, User as UserIcon, Phone, Image } from 'lucide-react';
+import { MapPin, ShoppingBag, Box, Plus, Edit, Package, User as UserIcon, Phone, Image, FileX } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { EditProfileDialog } from '@/components/EditProfileDialog';
 import axios from 'axios';
 import OrderDetailsDialog from '@/components/OrderDetailsDialog';
 import { format } from 'date-fns';
+import GenerateBill from '@/components/GenerateBill';
 
 const ProfilePage = () => {
   const { token, isAuthenticated } = useAuth();
@@ -38,6 +39,8 @@ const ProfilePage = () => {
   const [buyerOrders, setBuyerOrders] = useState<Order[]>([]);
   const [sellerOrders, setSellerOrders] = useState<Order[]>([]);
 
+  const [isbillOpen, setIsBillOPen] = useState(false);
+  const [billOrder, setBillOrder] = useState<Order>(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
@@ -205,6 +208,15 @@ const ProfilePage = () => {
     setDialogOpen(false);
   };
 
+  const downloadBill = (order: Order) => {
+    setBillOrder(order);
+    setIsBillOPen(true);
+  }
+
+  const onBillClose = () => {
+    setIsBillOPen(false);
+    setBillOrder(null);
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -231,7 +243,7 @@ const ProfilePage = () => {
 
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">OrderId P-00000{order.id}</h3>
+                          <h3 className="font-medium">OrderId ORD-00000{order.id}</h3>
                           <Badge variant={
                             order.status === 'delivered' ? 'default' :
                               order.status === 'confirmed' ? 'secondary' :
@@ -240,6 +252,13 @@ const ProfilePage = () => {
                             {order.status}
                           </Badge>
                         </div>
+
+                        <p className="text-xs text-gray-500 mt-1">
+                          Seller Contact: <a href={`tel:${order?.seller?.phone}`} className="text-blue-500 hover:underline">
+                            {order?.seller?.phone}
+                          </a>
+
+                        </p>
                         <p className="text-sm text-gray-500">
                           Total: ₹{order.finalprice.toFixed(2)}
                         </p>
@@ -314,41 +333,47 @@ const ProfilePage = () => {
 
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">OrderId P-0000{order.id}</h3>
+                          <h3 className="font-medium">OrderId ORD-00000{order.id}</h3>
                           <Badge variant={
                             order.status === 'delivered' ? 'default' :
                               order.status === 'confirmed' ? 'secondary' :
                                 order.status === 'cancelled' ? 'destructive' :
-                                'outline'
+                                  'outline'
                           }>
                             {order.status}
                           </Badge>
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Buyer Contact: <a href={`tel:${order?.buyer?.phone}`} className="text-blue-500 hover:underline">
+                            {order?.buyer?.phone}
+                          </a>
+                        </p>
                         <p className="text-sm text-gray-500">
                           Total: ₹{order.finalprice.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           Ordered on {format(new Date(order.orderdate), "PPP")}
                         </p>
-                        <div className="mt-2 flex justify-between items-center">
+                        <div className="mt-2 flex justify-between items-center" style={{display:"flex",flexWrap:"wrap"}}>
                           <p className="text-xs flex items-center">
                             <MapPin size={14} className="mr-1" />
-                            {order.locality},{order.city},{order.district},{order.state},{order.pincode}
+                            {order.locality}, {order.city}, {order.district}, {order.state}, {order.pincode}
                           </p>
                           <div className="mt-2 flex justify-between gap-2 items-center">
                             {order.status === 'pending' && (
                               <>
-                            <Button size="sm" onClick={() => handleConfirmOrder(order.id,'confirmed')}> Confirm</Button>
-                             <Button size="sm" style={{background:"red"}} onClick={() => handleConfirmOrder(order.id,'cancelled')}>Cancel</Button>
-                               </>
+                                <Button size="sm" onClick={() => handleConfirmOrder(order.id, 'confirmed')}> Confirm</Button>
+                                <Button size="sm" style={{ background: "red" }} onClick={() => handleConfirmOrder(order.id, 'cancelled')}>Cancel</Button>
+                              </>
                             )}
                             {order.status === 'confirmed' && (
-                            <>
-                            <Button size="sm" onClick={() => handleConfirmOrder(order.id,'delivered')}> Deliver</Button>
-                               </>
+                              <>
+                                <Button size="sm" onClick={() => handleConfirmOrder(order.id, 'delivered')}> Deliver</Button>
+                              </>
                             )}
 
-                            <Button size="sm" onClick={() => handleViewOrder(order)}><i className="fa-regular fa-eye"/></Button>
+                            <Button size="sm" onClick={() => handleViewOrder(order)}><i className="fa-regular fa-eye" /></Button>
+                            <Button size="sm" onClick={() => downloadBill(order)}><i className="fa-solid fa-file-pdf"></i></Button>
 
                           </div>
                         </div>
@@ -401,6 +426,9 @@ const ProfilePage = () => {
                           </div>
                           <p className="text-sm text-gray-500">
                             ₹{product.price.toFixed(2)} / {product.sellunit}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {product.description}
                           </p>
                           <div className="mt-2 flex justify-end space-x-2">
                             <Button size="sm" variant="outline" onClick={() => handleEditProduct(product)}>
@@ -457,6 +485,8 @@ const ProfilePage = () => {
         });
         localStorage.setItem('authToken', JSON.stringify(res.data.message));
         setIsEditProfileOpen(false);
+        navigate('/profile');
+        navigate(0)
         getUserInfo();
       } else {
         toast({
@@ -597,6 +627,17 @@ const ProfilePage = () => {
         open={dialogOpen}
         onClose={handleCloseDialog}
       />
+      {
+        isbillOpen && (
+          <GenerateBill
+            order={billOrder}
+            open={isbillOpen}
+            onClose={onBillClose}
+          />
+        )
+      }
+
+
     </div>
   );
 };

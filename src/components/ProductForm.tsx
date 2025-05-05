@@ -33,6 +33,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
     getAllCategory();
   }, []);
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
     resetForm();
   }, [product]);
@@ -44,7 +45,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
       console.error('Please login');
       return;
     }
-    const res = await axios.get(`http://localhost:8083/v1/api/categories/list`, {
+    const res = await axios.get(`${BASE_URL}/v1/api/categories/list`, {
       headers: {
         Authorization: `Bearer ${token}`,
       }

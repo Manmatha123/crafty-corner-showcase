@@ -45,7 +45,9 @@ const CustomOrderButton = ({ seller }: SellerObj) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  const BASE_URL = "http://localhost:8083";
+  
+  const BASE_URL = import.meta.env.VITE_API_URL;
+
 
   // Form state
   const [name, setName] = useState("");
@@ -59,28 +61,23 @@ const CustomOrderButton = ({ seller }: SellerObj) => {
   const [pincode, setPincode] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [categoryList, setCategoryList] = useState<Category[]>()
-
+ 
 
   useEffect(() => {
-    getAllCategory();
+    initializaData();
   }, []);
 
 
 
-  const getAllCategory = async () => {
-    const authToken = localStorage.getItem('authToken');
-    const token =await JSON.parse(authToken)
-    if (!token) {
-      console.error('Please login');
-      return;
-    }
-    const res = await axios.get(`${BASE_URL}/v1/api/categories/list`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    setCategoryList(res.data);
+  const initializaData = async () => {
+    const userObj = localStorage.getItem("user");
+    const buyer:User =await JSON.parse(userObj);
+    if(!buyer)  return;
+    setCity(buyer.city);
+    setLocality(buyer.locality);
+    setDistrict(buyer.district);
+    setState(buyer.state);
+    setPincode(buyer.pincode);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,7 +234,7 @@ console.log(customOrder)
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <PencilIcon className="w-4 h-4 text-gray-500" />
-              <label htmlFor="description" className="text-sm font-medium">Description</label>
+              <label htmlFor="description" className="text-sm font-medium">Describe</label>
             </div>
             <Textarea
               id="description"
@@ -248,32 +245,7 @@ console.log(customOrder)
             />
           </div>
 
-          <div className="space-y-2">
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={category?.name}
-                onValueChange={(value) => {
-                  const selectedCategory = categoryList?.find((cat) => cat.name === value);
-                  setCategory(selectedCategory || null);
-                }}
-              >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryList &&
-                    categoryList.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name}>
-                        {cat?.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-          </div>
-
+          
 
           {/* Image Upload */}
           <div className="space-y-2">

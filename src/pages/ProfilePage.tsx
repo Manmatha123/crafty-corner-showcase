@@ -45,7 +45,8 @@ const ProfilePage = () => {
   );
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<User>();
-  const baseUrl = "http://localhost:8083";
+
+  const baseUrl = import.meta.env.VITE_API_URL;
   const userData = user;
   const [ownerProduct, setOwnerProduct] = useState<Product[]>([]);
   const [buyerOrders, setBuyerOrders] = useState<Order[]>([]);

@@ -15,6 +15,7 @@ const HomePage = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_URL;
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState<Category>(null);
@@ -45,7 +46,7 @@ const HomePage = () => {
         let authToken = localStorage.getItem("authToken");
         authToken = JSON.parse(authToken);
         const responsedata = await axios.post(
-          "http://localhost:8083/v1/public/api/product/filter",
+          `${BASE_URL}/v1/public/api/product/filter`,
           {
             name: searchTerm || null,
             category: category == null ? null : category,

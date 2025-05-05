@@ -133,7 +133,7 @@ const SellerPage = () => {
             </div>
           </CardContent>
           <div className='d-flex p-2' style={{width:"100%",justifyContent:"right"}}>
-            <CustomOrderButton />
+            <CustomOrderButton seller={sellerInfo} />
           </div>
           
         </Card>

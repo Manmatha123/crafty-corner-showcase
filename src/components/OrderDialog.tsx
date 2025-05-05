@@ -97,7 +97,6 @@ const OrderDialog = ({
         district: district,
         pincode: pincode
       };
-console.log(newOrder);
       onPlaceOrder(newOrder);
     } 
     // Handle single product case

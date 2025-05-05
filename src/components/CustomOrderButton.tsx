@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,11 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, MapPin, List, Upload, PencilIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Category, User } from "@/lib/types";
+import axios from "axios";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { toast } from "@/hooks/use-toast";
 
 const CATEGORIES = [
   "Electronics",
@@ -32,22 +37,51 @@ const CATEGORIES = [
   "Others",
 ];
 
-const CustomOrderButton = () => {
+interface SellerObj {
+  seller: User
+}
+
+const CustomOrderButton = ({ seller }: SellerObj) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  
+
+  const BASE_URL = "http://localhost:8083";
+
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<Category>(null);
   const [locality, setLocality] = useState("");
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
   const [state, setState] = useState("");
+  const [qty, setQty] = useState("");
   const [pincode, setPincode] = useState("");
-  const [orderDate, setOrderDate] = useState<Date | undefined>(new Date());
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [categoryList, setCategoryList] = useState<Category[]>()
+
+
+  useEffect(() => {
+    getAllCategory();
+  }, []);
+
+
+
+  const getAllCategory = async () => {
+    const authToken = localStorage.getItem('authToken');
+    const token =await JSON.parse(authToken)
+    if (!token) {
+      console.error('Please login');
+      return;
+    }
+    const res = await axios.get(`${BASE_URL}/v1/api/categories/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    setCategoryList(res.data);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -61,46 +95,95 @@ const CustomOrderButton = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    const userObj = localStorage.getItem("user");
+    const buyer =await JSON.parse(userObj);
+    let authToken = localStorage.getItem('authToken');
+    authToken =await JSON.parse(authToken);
+
+
+    if (!buyer || !authToken) {
+      navigate("/login");
+      toast({
+        title: "Error",
+        description: "Please login before order",
+      })
+      return;
+    }
+
     // Create custom order object
     const customOrder = {
       name,
       description,
-      category,
+      // category,
       locality,
       city,
       district,
       state,
       pincode,
-      orderDate,
-      image,
-      status: "PENDING",
+      qty,
+      orderDate: new Date(),
+      image:"",
+      buyer: buyer,
+      seller: seller,
+      status: "pending",
     };
-    
-    console.log("Custom Order:", customOrder);
-    
-    // Close dialog
-    setOpen(false);
-    
-    // Navigate to custom order page (optional)
-    // navigate("/custom-order");
-    
-    // Reset form
-    resetForm();
+
+    const formData = new FormData();
+
+    if (image && image.size > 0) {
+      formData.append("file", image);
+    } else {
+      console.warn(
+        "No image file provided or file is empty. Adding an empty image placeholder."
+      );
+      const emptyImage = new Blob([], { type: "image/png" }); // Create an empty image file
+      formData.append("file", emptyImage, "placeholder.png"); // Append it with a default name
+    }
+
+    formData.append(
+      "product",
+      new Blob([JSON.stringify(customOrder)], { type: "application/json" })
+    );
+console.log(image)
+console.log(customOrder)
+
+    const res = await axios.post(`${BASE_URL}/v1/custom-order/saveorupdate`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authToken}`
+      },
+    });
+
+    if (res.data.status) {
+      toast({
+        title: "Success",
+        description: "order successfully",
+      });
+
+      setOpen(false);
+      resetForm();
+    } else {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
   };
-  
+
   const resetForm = () => {
     setName("");
     setDescription("");
-    setCategory("");
+    setCategory(null);
     setLocality("");
     setCity("");
+    setQty("");
     setDistrict("");
     setState("");
     setPincode("");
-    setOrderDate(new Date());
     setImage(null);
     setImagePreview(null);
   };
@@ -119,7 +202,7 @@ const CustomOrderButton = () => {
             Fill out the form below to create a custom order tailored to your specific requirements.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {/* Name */}
           <div className="space-y-2">
@@ -135,7 +218,21 @@ const CustomOrderButton = () => {
               required
             />
           </div>
-          
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <PencilIcon className="w-4 h-4 text-gray-500" />
+              <label htmlFor="name" className="text-sm font-medium">Quantity</label>
+            </div>
+            <Input
+              id="qty"
+              placeholder="Enter quantity"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+              required
+            />
+          </div>
+
           {/* Description */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -150,27 +247,34 @@ const CustomOrderButton = () => {
               required
             />
           </div>
-          
-          {/* Category */}
+
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <List className="w-4 h-4 text-gray-500" />
-              <label htmlFor="category" className="text-sm font-medium">Category</label>
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={category?.name}
+                onValueChange={(value) => {
+                  const selectedCategory = categoryList?.find((cat) => cat.name === value);
+                  setCategory(selectedCategory || null);
+                }}
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryList &&
+                    categoryList.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat?.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
-            <select
-              id="category"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-            >
-              <option value="" disabled>Select a category</option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+
           </div>
-          
+
+
           {/* Image Upload */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -187,50 +291,20 @@ const CustomOrderButton = () => {
             {imagePreview && (
               <div className="mt-2">
                 <p className="text-sm text-gray-500 mb-1">Preview:</p>
-                <img 
-                  src={imagePreview} 
-                  alt="Preview" 
-                  className="w-32 h-32 object-cover rounded-md border border-gray-300" 
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover rounded-md border border-gray-300"
                 />
               </div>
             )}
           </div>
-          
-          {/* Order Date */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-gray-500" />
-              <label htmlFor="orderDate" className="text-sm font-medium">Order Date</label>
-            </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !orderDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {orderDate ? format(orderDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={orderDate}
-                  onSelect={setOrderDate}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          
+
+
           {/* Address Fields */}
           <div className="space-y-4">
             <h3 className="font-medium">Delivery Address</h3>
-            
+
             {/* Locality */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -245,7 +319,7 @@ const CustomOrderButton = () => {
                 required
               />
             </div>
-            
+
             {/* City */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -260,7 +334,7 @@ const CustomOrderButton = () => {
                 required
               />
             </div>
-            
+
             {/* District */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -275,7 +349,7 @@ const CustomOrderButton = () => {
                 required
               />
             </div>
-            
+
             {/* State */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -290,7 +364,7 @@ const CustomOrderButton = () => {
                 required
               />
             </div>
-            
+
             {/* Pincode */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -306,7 +380,7 @@ const CustomOrderButton = () => {
               />
             </div>
           </div>
-          
+
           <DialogFooter className="pt-4">
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>
               Cancel
@@ -319,4 +393,4 @@ const CustomOrderButton = () => {
   );
 };
 
-export default  CustomOrderButton;
+export default CustomOrderButton;

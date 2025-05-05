@@ -81,3 +81,10 @@ export type AuthUser = {
   locality?: string;
   pincode?: string;
 };
+
+export interface ProductC {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+}

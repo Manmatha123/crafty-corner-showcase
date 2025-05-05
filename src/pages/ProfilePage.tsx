@@ -18,6 +18,7 @@ import axios from 'axios';
 import OrderDetailsDialog from '@/components/OrderDetailsDialog';
 import { format } from 'date-fns';
 import GenerateBill from '@/components/GenerateBill';
+import CustomOrderButton from '@/components/CustomOrderButton';
 
 const ProfilePage = () => {
   const { token, isAuthenticated } = useAuth();
@@ -653,7 +654,7 @@ const ProfilePage = () => {
         </div>
 
         <div className="py-4">{renderTabContent()}</div>
-        <CustomOrderButton />
+        
       </main>
 
       {/* <AddressForm

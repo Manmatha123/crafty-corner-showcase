@@ -13,6 +13,7 @@ import { ArrowLeft, ShoppingBag, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
+import CustomOrderButton from '@/components/CustomOrderButton';
 
 const SellerPage = () => {
   const { sellerId } = useParams<{ sellerId: string }>();
@@ -131,6 +132,10 @@ const SellerPage = () => {
               </div>
             </div>
           </CardContent>
+          <div className='d-flex p-2' style={{width:"100%",justifyContent:"right"}}>
+            <CustomOrderButton />
+          </div>
+          
         </Card>
 
         <h2 className="text-xl font-semibold mb-6">Products by {sellerInfo.name}</h2>

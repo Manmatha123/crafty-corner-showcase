@@ -26,23 +26,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import axios from "axios";
 import OrderDetailsDialog from "@/components/OrderDetailsDialog";
-
-import CustomOrderButton from "@/components/CustomOrderButton";
 import { format } from "date-fns";
-
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-
-// Sample custom orders data
-
+import CustomOrderButton from "@/components/CustomOrderButton";
 
 const ProfilePage = () => {
   const [customOrders, setCustomOrders] = useState([
@@ -95,11 +80,15 @@ const ProfilePage = () => {
   );
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [user, setUser] = useState<User>();
-  const baseUrl = "http://localhost:8083";
+
+  const baseUrl = import.meta.env.VITE_API_URL;
   const userData = user;
   const [ownerProduct, setOwnerProduct] = useState<Product[]>([]);
   const [buyerOrders, setBuyerOrders] = useState<Order[]>([]);
   const [sellerOrders, setSellerOrders] = useState<Order[]>([]);
+
+  const [isbillOpen, setIsBillOPen] = useState(false);
+  const [billOrder, setBillOrder] = useState<Order>(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -266,6 +255,16 @@ const ProfilePage = () => {
     setDialogOpen(false);
   };
 
+  const downloadBill = (order: Order) => {
+    setBillOrder(order);
+    setIsBillOPen(true);
+  }
+
+  const onBillClose = () => {
+    setIsBillOPen(false);
+    setBillOrder(null);
+  }
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "my-orders":
@@ -292,21 +291,22 @@ const ProfilePage = () => {
 
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">
-                            OrderId P-00000{order.id}
-                          </h3>
-                          <Badge
-                            variant={
-                              order.status === "delivered"
-                                ? "default"
-                                : order.status === "confirmed"
-                                ? "secondary"
-                                : "outline"
-                            }
-                          >
+                          <h3 className="font-medium">OrderId ORD-00000{order.id}</h3>
+                          <Badge variant={
+                            order.status === 'delivered' ? 'default' :
+                              order.status === 'confirmed' ? 'secondary' :
+                                'outline'
+                          }>
                             {order.status}
                           </Badge>
                         </div>
+
+                        <p className="text-xs text-gray-500 mt-1">
+                          Seller Contact: <a href={`tel:${order?.seller?.phone}`} className="text-blue-500 hover:underline">
+                            {order?.seller?.phone}
+                          </a>
+
+                        </p>
                         <p className="text-sm text-gray-500">
                           Total: ₹{order.finalprice.toFixed(2)}
                         </p>
@@ -386,78 +386,48 @@ const ProfilePage = () => {
 
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">
-                            OrderId P-0000{order.id}
-                          </h3>
-                          <Badge
-                            variant={
-                              order.status === "delivered"
-                                ? "default"
-                                : order.status === "confirmed"
-                                ? "secondary"
-                                : order.status === "cancelled"
-                                ? "destructive"
-                                : "outline"
-                            }
-                          >
+                          <h3 className="font-medium">OrderId ORD-00000{order.id}</h3>
+                          <Badge variant={
+                            order.status === 'delivered' ? 'default' :
+                              order.status === 'confirmed' ? 'secondary' :
+                                order.status === 'cancelled' ? 'destructive' :
+                                  'outline'
+                          }>
                             {order.status}
                           </Badge>
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Buyer Contact: <a href={`tel:${order?.buyer?.phone}`} className="text-blue-500 hover:underline">
+                            {order?.buyer?.phone}
+                          </a>
+                        </p>
                         <p className="text-sm text-gray-500">
                           Total: ₹{order.finalprice.toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           Ordered on {format(new Date(order.orderdate), "PPP")}
                         </p>
-                        <div className="mt-2 flex justify-between items-center">
+                        <div className="mt-2 flex justify-between items-center" style={{display:"flex",flexWrap:"wrap"}}>
                           <p className="text-xs flex items-center">
                             <MapPin size={14} className="mr-1" />
-                            {order.locality},{order.city},{order.district},
-                            {order.state},{order.pincode}
+                            {order.locality}, {order.city}, {order.district}, {order.state}, {order.pincode}
                           </p>
                           <div className="mt-2 flex justify-between gap-2 items-center">
                             {order.status === "pending" && (
                               <>
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    handleConfirmOrder(order.id, "confirmed")
-                                  }
-                                >
-                                  {" "}
-                                  Confirm
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  style={{ background: "red" }}
-                                  onClick={() =>
-                                    handleConfirmOrder(order.id, "cancelled")
-                                  }
-                                >
-                                  Cancel
-                                </Button>
+                                <Button size="sm" onClick={() => handleConfirmOrder(order.id, 'confirmed')}> Confirm</Button>
+                                <Button size="sm" style={{ background: "red" }} onClick={() => handleConfirmOrder(order.id, 'cancelled')}>Cancel</Button>
                               </>
                             )}
-                            {order.status === "confirmed" && (
+                            {order.status === 'confirmed' && (
                               <>
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    handleConfirmOrder(order.id, "delivered")
-                                  }
-                                >
-                                  {" "}
-                                  Deliver
-                                </Button>
+                                <Button size="sm" onClick={() => handleConfirmOrder(order.id, 'delivered')}> Deliver</Button>
                               </>
                             )}
 
-                            <Button
-                              size="sm"
-                              onClick={() => handleViewOrder(order)}
-                            >
-                              <i className="fa-regular fa-eye" />
-                            </Button>
+                            <Button size="sm" onClick={() => handleViewOrder(order)}><i className="fa-regular fa-eye" /></Button>
+                            <Button size="sm" onClick={() => downloadBill(order)}><i className="fa-solid fa-file-pdf"></i></Button>
+
                           </div>
                         </div>
                       </div>
@@ -515,6 +485,9 @@ const ProfilePage = () => {
                           </div>
                           <p className="text-sm text-gray-500">
                             ₹{product.price.toFixed(2)} / {product.sellunit}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {product.description}
                           </p>
                           <div className="mt-2 flex justify-end space-x-2">
                             <Button
@@ -581,6 +554,8 @@ const ProfilePage = () => {
         });
         localStorage.setItem("authToken", JSON.stringify(res.data.message));
         setIsEditProfileOpen(false);
+        navigate('/profile');
+        navigate(0)
         getUserInfo();
       } else {
         toast({
@@ -715,65 +690,7 @@ const ProfilePage = () => {
         </div>
 
         <div className="py-4">{renderTabContent()}</div>
-        
         <CustomOrderButton />
-        {customOrders.length === 0 ? (
-          <div className="text-gray-600 mb-6">
-            You haven't placed any orders yet.
-          </div>
-        ) : (
-          <div className="text-gray-600 mb-6">Here are your recent orders:</div>
-        )}
-
-
-        {customOrders.length > 0 && (
-          <Card className="mt-6">
-            <Table>
-              <TableCaption>List of your custom orders</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Order Date</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {customOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
-                    <TableCell>
-                      <div>
-                        <span>{order.name}</span>
-                        <p className="text-xs text-gray-500">
-                          {order.description}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>{order.category}</TableCell>
-                    <TableCell>
-                      {format(order.orderDate, "MMM d, yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          order.status === "PENDING"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : order.status === "APPROVED"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        )}
       </main>
 
       {/* <AddressForm
@@ -805,6 +722,7 @@ const ProfilePage = () => {
         open={dialogOpen}
         onClose={handleCloseDialog}
       />
+     
     </div>
   );
 };

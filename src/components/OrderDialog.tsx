@@ -97,7 +97,6 @@ const OrderDialog = ({
         district: district,
         pincode: pincode
       };
-console.log(newOrder);
       onPlaceOrder(newOrder);
     } 
     // Handle single product case
@@ -234,7 +233,7 @@ console.log(newOrder);
               <Label htmlFor="total">Total Price</Label>
               <Input
                 id="total"
-                value={`$${totalPrice.toFixed(2)}`}
+                value={`₹${totalPrice.toFixed(2)}`}
                 disabled
                 className="mt-1"
               />

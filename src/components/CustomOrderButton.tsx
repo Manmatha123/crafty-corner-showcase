@@ -307,7 +307,7 @@ const CustomOrderButton = () => {
             </div>
           </div>
           
-          <DialogFooter className="pt-4">
+          <DialogFooter className="pt-4"> 
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>
               Cancel
             </Button>

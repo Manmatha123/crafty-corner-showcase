@@ -26,10 +26,51 @@ import { useToast } from "@/components/ui/use-toast";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import axios from "axios";
 import OrderDetailsDialog from "@/components/OrderDetailsDialog";
-import { format } from "date-fns";
+
 import CustomOrderButton from "@/components/CustomOrderButton";
+import { format } from "date-fns";
+
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+
+// Sample custom orders data
+
 
 const ProfilePage = () => {
+  const [customOrders, setCustomOrders] = useState([
+    {
+      id: 1,
+      name: "Custom Electronics",
+      description: "High quality gaming PC",
+      category: "Electronics",
+      orderDate: new Date("2025-04-30"),
+      status: "PENDING",
+    },
+    {
+      id: 2,
+      name: "Personalized T-shirt",
+      description: "Custom printed t-shirt with logo",
+      category: "Clothing",
+      orderDate: new Date("2025-05-02"),
+      status: "APPROVED",
+    },
+    {
+      id: 3,
+      name: "Birthday Cake",
+      description: "Special cake for anniversary",
+      category: "Food & Beverages",
+      orderDate: new Date("2025-05-04"),
+      status: "IN PROGRESS",
+    },
+  ]);
   const { token, isAuthenticated } = useAuth();
   const {
     getProductsByOwnerId,
@@ -674,7 +715,65 @@ const ProfilePage = () => {
         </div>
 
         <div className="py-4">{renderTabContent()}</div>
+        
         <CustomOrderButton />
+        {customOrders.length === 0 ? (
+          <div className="text-gray-600 mb-6">
+            You haven't placed any orders yet.
+          </div>
+        ) : (
+          <div className="text-gray-600 mb-6">Here are your recent orders:</div>
+        )}
+
+
+        {customOrders.length > 0 && (
+          <Card className="mt-6">
+            <Table>
+              <TableCaption>List of your custom orders</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.id}</TableCell>
+                    <TableCell>
+                      <div>
+                        <span>{order.name}</span>
+                        <p className="text-xs text-gray-500">
+                          {order.description}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>{order.category}</TableCell>
+                    <TableCell>
+                      {format(order.orderDate, "MMM d, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          order.status === "PENDING"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : order.status === "APPROVED"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
       </main>
 
       {/* <AddressForm
@@ -706,9 +805,7 @@ const ProfilePage = () => {
         open={dialogOpen}
         onClose={handleCloseDialog}
       />
-     
     </div>
   );
 };
-
 export default ProfilePage;

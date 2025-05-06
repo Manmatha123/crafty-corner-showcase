@@ -39,11 +39,11 @@ const OrderDialog = ({
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [additionalContact, setAdditionalContact] = useState('');
-  const [locality, setLocality] = useState<string>(user.locality || '');
-  const [pincode, setPincode] = useState<string>(user.pincode || '');
-  const [city, setCity] = useState<string>(user.city || '');
-  const [state, setState] = useState<string>(user.state || '');
-  const [district, setDistrict] = useState<string>(user.district || '');
+  const [locality, setLocality] = useState<string>(user?.locality || '');
+  const [pincode, setPincode] = useState<string>(user?.pincode || '');
+  const [city, setCity] = useState<string>(user?.city || '');
+  const [state, setState] = useState<string>(user?.state || '');
+  const [district, setDistrict] = useState<string>(user?.district || '');
 
 
   // Get addresses for the current user

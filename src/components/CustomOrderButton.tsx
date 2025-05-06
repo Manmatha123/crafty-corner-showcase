@@ -352,13 +352,8 @@ console.log(customOrder)
               />
             </div>
           </div>
-<<<<<<< HEAD
-          
-          <DialogFooter className="pt-4"> 
-=======
 
           <DialogFooter className="pt-4">
->>>>>>> edd43c3a8476debe902263cc9d37b22e3e8bc8ea
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>
               Cancel
             </Button>

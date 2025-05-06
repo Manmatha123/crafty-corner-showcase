@@ -1,33 +1,72 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import AddressForm from "@/components/AddressForm";
-import ProductForm from "@/components/ProductForm";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/contexts/AuthContext";
-import { useProducts } from "@/contexts/ProductContext";
-import { Address, Order, Product, User } from "@/lib/types";
-import { mockUsers } from "@/lib/mockData";
+
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import Header from "@/components/Header";
+// import AddressForm from "@/components/AddressForm";
+// import ProductForm from "@/components/ProductForm";
+// import { Button } from "@/components/ui/button";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Badge } from "@/components/ui/badge";
+// import { Separator } from "@/components/ui/separator";
+// import { useAuth } from "@/contexts/AuthContext";
+// import { useProducts } from "@/contexts/ProductContext";
+// import { Address, Order, Product, User } from "@/lib/types";
+// import { mockUsers } from "@/lib/mockData";
+// import {
+//   MapPin,
+//   ShoppingBag,
+//   Box,
+//   Plus,
+//   Edit,
+//   Package,
+//   User as UserIcon,
+//   Phone,
+//   Image,
+// } from "lucide-react";
+// import { useToast } from "@/components/ui/use-toast";
+// import { EditProfileDialog } from "@/components/EditProfileDialog";
+// import axios from "axios";
+// import OrderDetailsDialog from "@/components/OrderDetailsDialog";
+
+// import CustomOrderButton from "@/components/CustomOrderButton";
+// import { format } from "date-fns";
+
 import {
-  MapPin,
-  ShoppingBag,
-  Box,
-  Plus,
-  Edit,
-  Package,
-  User as UserIcon,
-  Phone,
-  Image,
-} from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { EditProfileDialog } from "@/components/EditProfileDialog";
-import axios from "axios";
-import OrderDetailsDialog from "@/components/OrderDetailsDialog";
-import { format } from "date-fns";
-import CustomOrderButton from "@/components/CustomOrderButton";
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+
+// Sample custom orders data
+
+
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
+import AddressForm from '@/components/AddressForm';
+import ProductForm from '@/components/ProductForm';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProducts } from '@/contexts/ProductContext';
+import { Address, Order, Product, User } from '@/lib/types';
+import { mockUsers } from '@/lib/mockData';
+import { MapPin, ShoppingBag, Box, Plus, Edit, Package, User as UserIcon, Phone, Image, FileX } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { EditProfileDialog } from '@/components/EditProfileDialog';
+import axios from 'axios';
+import OrderDetailsDialog from '@/components/OrderDetailsDialog';
+import { format } from 'date-fns';
+import GenerateBill from '@/components/GenerateBill';
+import CustomOrderButton from '@/components/CustomOrderButton';
+
 
 const ProfilePage = () => {
   const [customOrders, setCustomOrders] = useState([
@@ -690,7 +729,68 @@ const ProfilePage = () => {
         </div>
 
         <div className="py-4">{renderTabContent()}</div>
-        <CustomOrderButton />
+        
+
+        {/* <CustomOrderButton /> */}
+        {customOrders.length === 0 ? (
+          <div className="text-gray-600 mb-6">
+            You haven't placed any orders yet.
+          </div>
+        ) : (
+          <div className="text-gray-600 mb-6">Here are your recent orders:</div>
+        )}
+
+
+        {customOrders.length > 0 && (
+          <Card className="mt-6">
+            <Table>
+              <TableCaption>List of your custom orders</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.id}</TableCell>
+                    <TableCell>
+                      <div>
+                        <span>{order.name}</span>
+                        <p className="text-xs text-gray-500">
+                          {order.description}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>{order.category}</TableCell>
+                    <TableCell>
+                      {format(order.orderDate, "MMM d, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          order.status === "PENDING"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : order.status === "APPROVED"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
+
+
       </main>
 
       {/* <AddressForm
@@ -722,7 +822,19 @@ const ProfilePage = () => {
         open={dialogOpen}
         onClose={handleCloseDialog}
       />
-     
+
+      {
+        isbillOpen && (
+          <GenerateBill
+            order={billOrder}
+            open={isbillOpen}
+            onClose={onBillClose}
+          />
+        )
+      }
+
+
+
     </div>
   );
 };

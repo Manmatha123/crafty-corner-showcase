@@ -54,9 +54,7 @@ const LoginPage = () => {
                   onChange={(e) => setMobile(e.target.value)}
                   required
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Demo: Try 1234567890 for seller or 4567890123 for buyer
-                </p>
+       
               </div>
               
               <div>
@@ -69,9 +67,7 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Demo: Use 'password' for all accounts
-                </p>
+    
               </div>
             </CardContent>
             

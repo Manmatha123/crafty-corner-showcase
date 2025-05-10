@@ -1,35 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import Header from "@/components/Header";
-// import AddressForm from "@/components/AddressForm";
-// import ProductForm from "@/components/ProductForm";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Badge } from "@/components/ui/badge";
-// import { Separator } from "@/components/ui/separator";
-// import { useAuth } from "@/contexts/AuthContext";
-// import { useProducts } from "@/contexts/ProductContext";
-// import { Address, Order, Product, User } from "@/lib/types";
-// import { mockUsers } from "@/lib/mockData";
-// import {
-//   MapPin,
-//   ShoppingBag,
-//   Box,
-//   Plus,
-//   Edit,
-//   Package,
-//   User as UserIcon,
-//   Phone,
-//   Image,
-// } from "lucide-react";
-// import { useToast } from "@/components/ui/use-toast";
-// import { EditProfileDialog } from "@/components/EditProfileDialog";
-// import axios from "axios";
-// import OrderDetailsDialog from "@/components/OrderDetailsDialog";
-
-// import CustomOrderButton from "@/components/CustomOrderButton";
-// import { format } from "date-fns";
-
 import {
   Table,
   TableBody,
@@ -74,34 +42,31 @@ import OrderDetailsDialog from "@/components/OrderDetailsDialog";
 import { format } from "date-fns";
 import GenerateBill from "@/components/GenerateBill";
 import CustomOrderButton from "@/components/CustomOrderButton";
+import CustomOrderrView from "@/components/CustomOrderView";
+import CustomBill from "@/components/CustomBill";
+
+export interface CustomizeOrder {
+  id: number;
+  buyer: User;
+  seller: User;
+  name: string;
+  image: string;
+  qty: number;
+  orderdate: Date;
+  orderid: string;
+  description: string;
+  status: string;
+  locality: string;
+  city: string;
+  state: string;
+  district: string;
+  pincode: string;
+}
 
 const ProfilePage = () => {
-  const [customOrders, setCustomOrders] = useState([
-    {
-      id: 1,
-      name: "Custom Electronics",
-      description: "High quality gaming PC",
-      category: "Electronics",
-      orderDate: new Date("2025-04-30"),
-      status: "PENDING",
-    },
-    {
-      id: 2,
-      name: "Personalized T-shirt",
-      description: "Custom printed t-shirt with logo",
-      category: "Clothing",
-      orderDate: new Date("2025-05-02"),
-      status: "APPROVED",
-    },
-    {
-      id: 3,
-      name: "Birthday Cake",
-      description: "Special cake for anniversary",
-      category: "Food & Beverages",
-      orderDate: new Date("2025-05-04"),
-      status: "IN PROGRESS",
-    },
-  ]);
+  const [myCustomOrders, setMyCustomOrders] = useState<CustomizeOrder[]>([]);
+  const [receiveCustomOrders, setReceiveCustomOrders] = useState<CustomizeOrder[]>([]);
+
   const { token, isAuthenticated } = useAuth();
   const {
     getProductsByOwnerId,
@@ -134,7 +99,9 @@ const ProfilePage = () => {
   const [sellerOrders, setSellerOrders] = useState<Order[]>([]);
 
   const [isbillOpen, setIsBillOPen] = useState(false);
+  const [isCustombillOpen, setIsCustomBillOPen] = useState(false);
   const [billOrder, setBillOrder] = useState<Order>(null);
+  const [customBill, cetCustomBill] = useState<CustomizeOrder>(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -153,6 +120,30 @@ const ProfilePage = () => {
     getOwnerproduct();
   }, []);
 
+
+  const fetchStoreCustomOrders = async (id: any) => {
+    const authToken = localStorage.getItem("authToken");
+    let currentToken = await JSON.parse(authToken);
+    const res = await axios.get(`${baseUrl}/v1/custom-order/list/owner/${id}`, {
+      headers: {
+        Authorization: `Bearer ${currentToken}`,
+      },
+    });
+
+    setReceiveCustomOrders(res.data);
+  }
+
+  const fetchMyCustomOrders = async (id: any) => {
+    const authToken = localStorage.getItem("authToken");
+    let currentToken = await JSON.parse(authToken);
+    const res = await axios.get(`${baseUrl}/v1/custom-order/list/buyer/${id}`, {
+      headers: {
+        Authorization: `Bearer ${currentToken}`,
+      },
+    });
+
+    setMyCustomOrders(res.data);
+  }
   const getUserInfo = async () => {
     try {
       let authToken = localStorage.getItem("authToken");
@@ -166,12 +157,14 @@ const ProfilePage = () => {
       setUser(res.data);
       if (res.data && res.data?.role == "seller") {
         fetchReceiveOrder(res.data.id);
+        fetchStoreCustomOrders(res.data.id);
         setActiveTab("orders-received");
       }
       if (res.data && res.data?.role === "buyer") {
+        fetchMyCustomOrders(res.data.id);
         fetchMyOrders(res.data.id);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const fetchReceiveOrder = async (id: any) => {
@@ -187,7 +180,7 @@ const ProfilePage = () => {
         }
       );
       setSellerOrders(res.data);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const fetchMyOrders = async (id: any) => {
@@ -203,7 +196,7 @@ const ProfilePage = () => {
         }
       );
       setBuyerOrders(res.data);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const getOwnerproduct = async () => {
@@ -216,7 +209,7 @@ const ProfilePage = () => {
         },
       });
       setOwnerProduct(res.data);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleEditProduct = (product: Product) => {
@@ -290,10 +283,16 @@ const ProfilePage = () => {
     // }
   };
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [customOrderSelected, setCustomOrderSelected] = useState<CustomizeOrder | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
+    setDialogOpen(true);
+  };
+
+  const handleCustomOrderView = (order: CustomizeOrder) => {
+    setCustomOrderSelected(order);
     setDialogOpen(true);
   };
 
@@ -306,6 +305,14 @@ const ProfilePage = () => {
     setIsBillOPen(true);
   };
 
+  const downloadCustomBill = (order: CustomizeOrder) => {
+    cetCustomBill(order);
+    setIsCustomBillOPen(true);
+  };
+  const onCustomBillClose = () => {
+    setIsCustomBillOPen(false);
+    cetCustomBill(null);
+  };
   const onBillClose = () => {
     setIsBillOPen(false);
     setBillOrder(null);
@@ -345,8 +352,8 @@ const ProfilePage = () => {
                               order.status === "delivered"
                                 ? "default"
                                 : order.status === "confirmed"
-                                ? "secondary"
-                                : "outline"
+                                  ? "secondary"
+                                  : "outline"
                             }
                           >
                             {order.status}
@@ -394,29 +401,7 @@ const ProfilePage = () => {
           </div>
         );
 
-      case "info":
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">My Information</h2>
-            </div>
-            <Card className="animate-fade-in">
-              <CardContent className="p-4">
-                <div className="flex justify-between">
-                  <div>
-                    <div className="flex items-center">
-                      <h3 className="font-medium">{user.locality}</h3>
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      {user.city},{user.district},{user.state},{user.pincode}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
+  
       case "orders-received":
         return (
           <div className="space-y-4">
@@ -449,10 +434,10 @@ const ProfilePage = () => {
                               order.status === "delivered"
                                 ? "default"
                                 : order.status === "confirmed"
-                                ? "secondary"
-                                : order.status === "cancelled"
-                                ? "destructive"
-                                : "outline"
+                                  ? "secondary"
+                                  : order.status === "cancelled"
+                                    ? "destructive"
+                                    : "outline"
                             }
                           >
                             {order.status}
@@ -622,14 +607,14 @@ const ProfilePage = () => {
             )}
           </div>
         );
-      case "custom":
+      case "my-custom":
         return (
           <div>
-     
+
             {/* <CustomOrderButton /> */}
-            {customOrders.length === 0 ? (
+            {myCustomOrders.length === 0 ? (
               <div className="text-gray-600 mb-6">
-                You haven't placed any orders yet.
+                You haven't placed any custom orders yet.
               </div>
             ) : (
               <div className="text-gray-600 mb-6">
@@ -637,50 +622,52 @@ const ProfilePage = () => {
               </div>
             )}
 
-            {customOrders.length > 0 && (
+            {myCustomOrders.length > 0 && (
               <Card className="mt-6">
                 <Table>
                   <TableCaption>List of your custom orders</TableCaption>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Order ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Category</TableHead>
+                      <TableHead>Img</TableHead>
+                      <TableHead>Qty</TableHead>
                       <TableHead>Order Date</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {customOrders.map((order) => (
+                    {myCustomOrders.map((order) => (
                       <TableRow key={order.id}>
                         <TableCell className="font-medium">
-                          {order.id}
+                          ORD-00000{order.id}
+                        </TableCell>
+                        <TableCell> <img style={{ height: "60px" }} src={`data:image/jpeg;base64,${order.image}`} alt="" /> </TableCell>
+                        <TableCell>{order.qty} 
+                          
                         </TableCell>
                         <TableCell>
-                          <div>
-                            <span>{order.name}</span>
-                            <p className="text-xs text-gray-500">
-                              {order.description}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>{order.category}</TableCell>
-                        <TableCell>
-                          {format(order.orderDate, "MMM d, yyyy")}
+                          {format(new Date(order.orderdate), "PPP")}
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              order.status === "PENDING"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : order.status === "APPROVED"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${order.status === "PENDING"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : order.status === "APPROVED"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
                             }`}
-                          >
+                            >
                             {order.status}
                           </span>
                         </TableCell>
+                            <TableCell>
+                            <Button
+                            size="sm"
+                            onClick={() => handleCustomOrderView(order)}
+                          >
+                            <i className="fa-regular fa-eye" />
+                          </Button>  </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -689,6 +676,88 @@ const ProfilePage = () => {
             )}
           </div>
         );
+
+
+
+      case "receive-custom":
+        return (
+          <div>
+
+            {/* <CustomOrderButton /> */}
+            {receiveCustomOrders.length === 0 ? (
+              <div className="text-gray-600 mb-6">
+                You haven't receive any custom orders yet.
+              </div>
+            ) : (
+              <div className="text-gray-600 mb-6">
+                Here are your recent orders:
+              </div>
+            )}
+
+            {receiveCustomOrders.length > 0 && (
+              <Card className="mt-6">
+                <Table>
+                  <TableCaption>List of your receive custom orders</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Img</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Qty</TableHead>
+                      <TableHead>Order Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {receiveCustomOrders.map((order) => (
+                      <TableRow key={order?.id}>
+                        <TableCell className="font-medium">
+                          ORD-00000{order?.id}
+                        </TableCell>
+                        <TableCell>
+                          <img style={{ height: "90px" }} src={`data:image/jpeg;base64,${order.image}`} alt="" /> </TableCell>
+                        <TableCell>{order?.name} </TableCell>
+                        <TableCell>{order?.qty} </TableCell>
+                        <TableCell>
+                          {format(new Date(order.orderdate), "PPP")}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${order.status === "PENDING"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : order?.status === "APPROVED"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-green-100 text-green-800"
+                              }`}
+                          >
+                            {order?.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            onClick={() => handleCustomOrderView(order)}
+                          >
+                            <i className="fa-regular fa-eye" />
+                          </Button> 
+                          <Button
+                              size="sm"
+                              onClick={() => downloadCustomBill(order)}
+                            >
+                              <i className="fa-solid fa-file-pdf"></i>
+                            </Button>
+                          </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </div>
+        );
+
+
 
       default:
         return null;
@@ -774,8 +843,8 @@ const ProfilePage = () => {
                   {user.role === "both"
                     ? "Buyer & Seller"
                     : user.role === "seller"
-                    ? "Seller"
-                    : "Buyer"}
+                      ? "Seller"
+                      : "Buyer"}
                 </Badge>
               </div>
               {user.locality && (
@@ -806,38 +875,24 @@ const ProfilePage = () => {
           <div className="flex space-x-6">
             {canBuy && (
               <button
-                className={`pb-2 px-1 ${
-                  activeTab === "my-orders"
-                    ? "tab-active"
-                    : "text-gray-500 hover:text-gray-700"
-                } flex items-center`}
+                className={`pb-2 px-1 ${activeTab === "my-orders"
+                  ? "tab-active"
+                  : "text-gray-500 hover:text-gray-700"
+                  } flex items-center`}
                 onClick={() => setActiveTab("my-orders")}
               >
                 <ShoppingBag size={16} className="mr-2" />
                 My Orders
               </button>
             )}
+   
             {canBuy && (
               <button
-                className={`pb-2 px-1 ${
-                  activeTab === "info"
-                    ? "tab-active"
-                    : "text-gray-500 hover:text-gray-700"
-                } flex items-center`}
-                onClick={() => setActiveTab("info")}
-              >
-                <MapPin size={16} className="mr-2" />
-                My Info
-              </button>
-            )}
-            {canBuy && (
-              <button
-                className={`pb-2 px-1 ${
-                  activeTab === "custom"
-                    ? "tab-active"
-                    : "text-gray-500 hover:text-gray-700"
-                } flex items-center`}
-                onClick={() => setActiveTab("custom")}
+                className={`pb-2 px-1 ${activeTab === "my-custom"
+                  ? "tab-active"
+                  : "text-gray-500 hover:text-gray-700"
+                  } flex items-center`}
+                onClick={() => setActiveTab("my-custom")}
               >
                 <MapPin size={16} className="mr-2" />
                 My Custom Orders
@@ -846,11 +901,10 @@ const ProfilePage = () => {
 
             {canSell && (
               <button
-                className={`pb-2 px-1 ${
-                  activeTab === "orders-received"
-                    ? "tab-active"
-                    : "text-gray-500 hover:text-gray-700"
-                } flex items-center`}
+                className={`pb-2 px-1 ${activeTab === "orders-received"
+                  ? "tab-active"
+                  : "text-gray-500 hover:text-gray-700"
+                  } flex items-center`}
                 onClick={() => setActiveTab("orders-received")}
               >
                 <Package size={16} className="mr-2" />
@@ -859,11 +913,10 @@ const ProfilePage = () => {
             )}
             {canSell && (
               <button
-                className={`pb-2 px-1 ${
-                  activeTab === "my-products"
-                    ? "tab-active"
-                    : "text-gray-500 hover:text-gray-700"
-                } flex items-center`}
+                className={`pb-2 px-1 ${activeTab === "my-products"
+                  ? "tab-active"
+                  : "text-gray-500 hover:text-gray-700"
+                  } flex items-center`}
                 onClick={() => setActiveTab("my-products")}
               >
                 <Box size={16} className="mr-2" />
@@ -872,12 +925,11 @@ const ProfilePage = () => {
             )}
             {canSell && (
               <button
-                className={`pb-2 px-1 ${
-                  activeTab === "custom"
-                    ? "tab-active"
-                    : "text-gray-500 hover:text-gray-700"
-                } flex items-center`}
-                onClick={() => setActiveTab("custom")}
+                className={`pb-2 px-1 ${activeTab === "receive-custom"
+                  ? "tab-active"
+                  : "text-gray-500 hover:text-gray-700"
+                  } flex items-center`}
+                onClick={() => setActiveTab("receive-custom")}
               >
                 <Box size={16} className="mr-2" />
                 Recived Custom Orders
@@ -919,11 +971,25 @@ const ProfilePage = () => {
         onClose={handleCloseDialog}
       />
 
+      <CustomOrderrView
+        order={customOrderSelected}
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+      />
+
       {isbillOpen && (
         <GenerateBill
           order={billOrder}
           open={isbillOpen}
           onClose={onBillClose}
+        />
+      )}
+
+      {isCustombillOpen && (
+        <CustomBill
+          order={customBill}
+          open={isCustombillOpen}
+          onClose={onCustomBillClose}
         />
       )}
     </div>

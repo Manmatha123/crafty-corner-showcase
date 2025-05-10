@@ -4,7 +4,7 @@ import SecIndex from '../Secondapp/Index'
 
 
 const Index = () => {
-  return <SecIndex />;
+  return <HomePage />;
 };
 
 export default Index;

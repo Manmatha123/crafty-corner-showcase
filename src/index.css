@@ -1,4 +1,4 @@
-/* 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -105,10 +105,10 @@
 
 .tab-active {
   @apply border-b-2 border-brand-600 text-brand-700 font-medium;
-} */
+}
 
 
-
+/* 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -221,4 +221,4 @@
 .category-card {
   @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
 }
-
+ */

@@ -133,6 +133,32 @@ const ProfilePage = () => {
     setReceiveCustomOrders(res.data);
   }
 
+  const updateCustomReceiveOrderStatus = async (id: any, status: String) => {
+    const authToken = localStorage.getItem("authToken");
+    let currentToken = await JSON.parse(authToken);
+    const res = await axios.get(`${baseUrl}/v1/custom-order/status/id/${id}/${status}`, {
+      headers: {
+        Authorization: `Bearer ${currentToken}`,
+      },
+    });
+
+    if (res.data.status) {
+      toast({
+        title: "Success",
+        description: res.data.message,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+      });
+    }
+    fetchStoreCustomOrders(user.id);
+  }
+
+
+
+  // /v1/custom-order/status/id/{id}/{status}
   const fetchMyCustomOrders = async (id: any) => {
     const authToken = localStorage.getItem("authToken");
     let currentToken = await JSON.parse(authToken);
@@ -401,7 +427,7 @@ const ProfilePage = () => {
           </div>
         );
 
-  
+
       case "orders-received":
         return (
           <div className="space-y-4">
@@ -643,8 +669,8 @@ const ProfilePage = () => {
                           ORD-00000{order.id}
                         </TableCell>
                         <TableCell> <img style={{ height: "60px" }} src={`data:image/jpeg;base64,${order.image}`} alt="" /> </TableCell>
-                        <TableCell>{order.qty} 
-                          
+                        <TableCell>{order.qty}
+
                         </TableCell>
                         <TableCell>
                           {format(new Date(order.orderdate), "PPP")}
@@ -654,15 +680,15 @@ const ProfilePage = () => {
                             className={`px-2 py-1 rounded-full text-xs font-medium ${order.status === "PENDING"
                               ? "bg-yellow-100 text-yellow-800"
                               : order.status === "APPROVED"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-green-100 text-green-800"
-                            }`}
-                            >
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-green-100 text-green-800"
+                              }`}
+                          >
                             {order.status}
                           </span>
                         </TableCell>
-                            <TableCell>
-                            <Button
+                        <TableCell>
+                          <Button
                             size="sm"
                             onClick={() => handleCustomOrderView(order)}
                           >
@@ -724,30 +750,70 @@ const ProfilePage = () => {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${order.status === "PENDING"
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${order.status === "pending"
                               ? "bg-yellow-100 text-yellow-800"
-                              : order?.status === "APPROVED"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
+                              : order?.status === "delivered"
+                                ? "bg-green-100 text-green-800"
+                                : order?.status === "cancelled"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
                               }`}
                           >
+                            {/* cancelled */}
                             {order?.status}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            onClick={() => handleCustomOrderView(order)}
-                          >
-                            <i className="fa-regular fa-eye" />
-                          </Button> 
-                          <Button
+                     <div className="mt-2 flex justify-end gap-2 items-center">
+                            {order.status === "pending" && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() =>
+                                    updateCustomReceiveOrderStatus(order.id, "confirmed")
+                                  }
+                                >
+                                  {" "}
+                                  Confirm
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  style={{ background: "red" }}
+                                  onClick={() =>
+                                    updateCustomReceiveOrderStatus(order.id, "cancelled")
+                                  }
+                                >
+                                  Cancel
+                                </Button>
+                              </>
+                            )}
+                            {order.status === "confirmed" && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() =>
+                                    updateCustomReceiveOrderStatus(order.id, "delivered")
+                                  }
+                                >
+                                  {" "}
+                                  Deliver
+                                </Button>
+                              </>
+                            )}
+                            <Button
+                              size="sm"
+                              onClick={() => handleCustomOrderView(order)}
+                            >
+                              <i className="fa-regular fa-eye" />
+                            </Button>
+                            <Button
                               size="sm"
                               onClick={() => downloadCustomBill(order)}
                             >
                               <i className="fa-solid fa-file-pdf"></i>
                             </Button>
-                          </TableCell>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -885,7 +951,7 @@ const ProfilePage = () => {
                 My Orders
               </button>
             )}
-   
+
             {canBuy && (
               <button
                 className={`pb-2 px-1 ${activeTab === "my-custom"

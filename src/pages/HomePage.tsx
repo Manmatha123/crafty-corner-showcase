@@ -6,7 +6,7 @@ import OrderDialog from "@/components/OrderDialog";
 import { useProducts } from "@/contexts/ProductContext";
 import { Category, Product } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import CustomOrderButton from "@/components/CustomOrderButton";
 
@@ -14,6 +14,33 @@ const HomePage = () => {
   const { products, addOrder, setFilteredProducts } = useProducts();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { categoryId } = useParams(); // Extract categoryId from the URL
+  const urlLocation = useLocation();
+  const queryParams = new URLSearchParams(urlLocation.search);
+  const paramCategory = queryParams.get("category");
+  const productParamName = queryParams.get("name");
+
+    useEffect(() => {
+    if (paramCategory && productParamName) {
+      const categoryObj: Category = {
+        id: Number(paramCategory),
+        name: ""
+      }
+      setCategory(categoryObj);
+
+      setSearchTerm(decodeURI(productParamName));
+    }
+  }, [paramCategory,productParamName]);
+
+  useEffect(() => {
+    if (categoryId) {
+      const categoryObj: Category = {
+        id: Number(categoryId),
+        name: ""
+      }
+      setCategory(categoryObj);
+    }
+  }, [categoryId]);
 
   const BASE_URL = import.meta.env.VITE_API_URL;
   // Filter states
@@ -150,7 +177,7 @@ const HomePage = () => {
           onPlaceOrder={handlePlaceOrder}
         />
       )}
-     
+
     </div>
   );
 };

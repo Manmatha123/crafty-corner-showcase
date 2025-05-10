@@ -1,8 +1,12 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
+import banner from "../../public/pexels-jadson-thomas-164235-542556.jpg"
 
 const Hero = () => {
+
+  const navigate=useNavigate();
   return (
     <div className="relative py-16 md:py-24 overflow-hidden">
       {/* Background pattern */}
@@ -17,25 +21,22 @@ const Hero = () => {
               Handcrafted with <span className="text-craft-600">Love</span> & Passion
             </h1>
             <p className="text-lg md:text-xl text-craft-800 max-w-lg">
-              Discover unique handmade treasures created by talented artisans from around the world.
+              Discover unique handmade treasures created by talented artisans from around the country.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
-              <Button  size="lg" className="bg-black hover:bg-craft-700 text-white">
+              <Button  size="lg" className="bg-black hover:bg-craft-700 text-white"  onClick={() => navigate('/filter')}>
                 Shop Now
-              </Button>
-              <Button variant="outline" size="lg">
-                Learn More
               </Button>
             </div>
           </div>
           
           <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-lg overflow-hidden animate-scale-in">
             <img 
-              src="/images/hero-crafts.jpg" 
+              src={banner} 
               alt="Handcrafted items display" 
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=800&h=600';
+                e.currentTarget.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU2skwkDuGUloICGT0fkcA5QTn1IM5BLU9ePm7H2_-FcMBvbCeYEI1jeG7a2pSc2UudKY&usqp=CAU';
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-craft-900/40 to-transparent"></div>

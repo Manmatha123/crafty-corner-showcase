@@ -7,13 +7,13 @@ const Footer = () => {
   return (
     <footer className="bg-red text-black pt-16 pb-8">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-between items-start" style={{display:"flex",justifyContent:"space-between"}}>
           <div>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-6" >
               <Package className="w-6 h-6 text-craft-300" />
               <span className="text-xl font-bold text-black">Eco Market</span>
             </div>
-            <p className="text-craft-300 mb-6">
+            <p className="text-craft-300 mb-6" style={{maxWidth:"50%"}}>
               We curate handcrafted treasures made with love and passion by talented artisans from around the world.
             </p>
             <div className="flex space-x-4">
@@ -39,39 +39,17 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
-            <ul className="space-y-4">
-              <li><Link to="/" className="text-craft-300 hover:text-white transition-colors">Home</Link></li>
-              <li><Link to="/shop" className="text-craft-300 hover:text-white transition-colors">Shop</Link></li>
-              <li><Link to="/about" className="text-craft-300 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="text-craft-300 hover:text-white transition-colors">Contact</Link></li>
-              <li><Link to="/blog" className="text-craft-300 hover:text-white transition-colors">Blog</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold mb-6">Categories</h3>
-            <ul className="space-y-4">
-              <li><Link to="/category/artwork" className="text-craft-300 hover:text-white transition-colors">Artwork</Link></li>
-              <li><Link to="/category/pencil-art" className="text-craft-300 hover:text-white transition-colors">Pencil Art</Link></li>
-              <li><Link to="/category/photo-frames" className="text-craft-300 hover:text-white transition-colors">Photo Frames</Link></li>
-              <li><Link to="/category/handcrafts" className="text-craft-300 hover:text-white transition-colors">Handcrafts</Link></li>
-              <li><Link to="/category/wall-art" className="text-craft-300 hover:text-white transition-colors">Wall Art</Link></li>
-            </ul>
-          </div>
-          
+
           <div>
             <h3 className="text-lg font-semibold mb-6">Contact Information</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="w-5 h-5 mr-3 text-craft-400 flex-shrink-0 mt-0.5" />
-                <span className="text-craft-300">123 Artisan Street, Craftville, CV 12345</span>
+                <span className="text-craft-300">India</span>
               </li>
               <li className="flex items-center">
                 <Phone className="w-5 h-5 mr-3 text-craft-400 flex-shrink-0" />
-                <span className="text-craft-300">(555) 123-4567</span>
+                <span className="text-craft-300">(+91) 12345-67890</span>
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 text-craft-400 flex-shrink-0" />
@@ -83,13 +61,12 @@ const Footer = () => {
         
         <div className="border-t border-craft-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-craft-400 text-sm">
-            &copy; {new Date().getFullYear()} EcoMarket. All rights reserved.
+            &copy; {new Date().getFullYear()} EcoMarket. <i className="fa-solid fa-heart" style={{color:"red"}}></i> with srinix college of engineering.
           </p>
           <div className="mt-4 md:mt-0">
             <ul className="flex space-x-6 text-sm text-craft-400">
               <li><a href="#" className="hover:text-craft-300 transition-colors">Privacy Policy</a></li>
               <li><a href="#" className="hover:text-craft-300 transition-colors">Terms & Conditions</a></li>
-              <li><a href="#" className="hover:text-craft-300 transition-colors">Shipping Info</a></li>
             </ul>
           </div>
         </div>

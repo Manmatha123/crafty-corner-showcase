@@ -2,30 +2,21 @@
 import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Link } from 'react-router-dom';
+import { Category } from '@/lib/types';
 
 interface ProductCardProps {
   id: number;
   name: string;
   image: string;
   price: number;
-  category: string;
+  category: Category;
   artist: string;
 }
 
-const ProductCard = ({ id, name, image, price, category, artist }: ProductCardProps) => {
-  // Get the category ID from the product - for the example we'll just use simple mapping
-  const getCategoryId = () => {
-    const categoryMap: Record<string, number> = {
-      "Artwork": 1,
-      "Pencil Art": 2,
-      "Photo Frames": 3,
-      "Handcrafts": 4,
-      "Wall Art": 5
-    };
-    return categoryMap[category] || 1;
-  };
+const ProductCard = ({ id, name, image, price, category,artist }: ProductCardProps) => {
 
-  const categoryId = getCategoryId();
+
+  const categoryId = category?.id;
   const productUrl = `/filter?category=${categoryId}&name=${encodeURIComponent(name)}`;
 
   return (
@@ -33,7 +24,7 @@ const ProductCard = ({ id, name, image, price, category, artist }: ProductCardPr
       <Card className="product-card overflow-hidden h-full border border-muted flex flex-col hover:shadow-md transition-shadow">
         <div className="relative">
           <img 
-            src={image} 
+           src={`data:image/jpeg;base64,${image}`}
             alt={name}
             className="w-full aspect-square object-cover"
             onError={(e) => {
@@ -41,7 +32,7 @@ const ProductCard = ({ id, name, image, price, category, artist }: ProductCardPr
             }}
           />
           <div className="absolute bottom-0 left-0 bg-craft-500 text-white px-3 py-1 text-xs">
-            {category}
+            {category?.name}
           </div>
         </div>
         
@@ -51,7 +42,7 @@ const ProductCard = ({ id, name, image, price, category, artist }: ProductCardPr
         </CardContent>
         
         <CardFooter className="pt-3 pb-4 flex items-center justify-between">
-          <span className="font-semibold text-craft-900">${price.toFixed(2)}</span>
+          <span className="font-semibold text-craft-900">₹{price.toFixed(2)}</span>
         </CardFooter>
       </Card>
     </Link>

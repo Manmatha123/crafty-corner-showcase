@@ -12,6 +12,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import SellerPage from "./pages/SellerPage";
 import NotFound from "./pages/NotFound";
+import SecIndex from '../src/Secondapp/Index'
 
 const queryClient = new QueryClient();
 
@@ -24,8 +25,9 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
-              {/* <Route path="/shop" element={<Shop/>} /> */}
+              <Route path="/filter" element={<Index />} />
+             <Route path="/filter/category/:categoryId" element={<Index />} />
+              <Route path="/" element={<SecIndex/>} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/profile" element={<ProfilePage />} />

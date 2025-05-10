@@ -141,9 +141,14 @@ const SellerPage = () => {
               </div>
             </div>
           </CardContent>
+          {
+            sellerInfo && sellerInfo?.userAdditional?.customorder && (
           <div className='d-flex p-2' style={{width:"100%",justifyContent:"right"}}  onClick={handleCustomOrderClick}>
             <CustomOrderButton seller={sellerInfo} />
           </div>
+            )
+          }
+
           
         </Card>
 

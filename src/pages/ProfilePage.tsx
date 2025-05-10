@@ -1,26 +1,107 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import AddressForm from '@/components/AddressForm';
-import ProductForm from '@/components/ProductForm';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProducts } from '@/contexts/ProductContext';
-import { Address, Order, Product, User } from '@/lib/types';
-import { mockUsers } from '@/lib/mockData';
-import { MapPin, ShoppingBag, Box, Plus, Edit, Package, User as UserIcon, Phone, Image, FileX } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { EditProfileDialog } from '@/components/EditProfileDialog';
-import axios from 'axios';
-import OrderDetailsDialog from '@/components/OrderDetailsDialog';
-import { format } from 'date-fns';
-import GenerateBill from '@/components/GenerateBill';
-import CustomOrderButton from '@/components/CustomOrderButton';
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import Header from "@/components/Header";
+// import AddressForm from "@/components/AddressForm";
+// import ProductForm from "@/components/ProductForm";
+// import { Button } from "@/components/ui/button";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Badge } from "@/components/ui/badge";
+// import { Separator } from "@/components/ui/separator";
+// import { useAuth } from "@/contexts/AuthContext";
+// import { useProducts } from "@/contexts/ProductContext";
+// import { Address, Order, Product, User } from "@/lib/types";
+// import { mockUsers } from "@/lib/mockData";
+// import {
+//   MapPin,
+//   ShoppingBag,
+//   Box,
+//   Plus,
+//   Edit,
+//   Package,
+//   User as UserIcon,
+//   Phone,
+//   Image,
+// } from "lucide-react";
+// import { useToast } from "@/components/ui/use-toast";
+// import { EditProfileDialog } from "@/components/EditProfileDialog";
+// import axios from "axios";
+// import OrderDetailsDialog from "@/components/OrderDetailsDialog";
+
+// import CustomOrderButton from "@/components/CustomOrderButton";
+// import { format } from "date-fns";
+
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+// Sample custom orders data
+
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
+import AddressForm from "@/components/AddressForm";
+import ProductForm from "@/components/ProductForm";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProducts } from "@/contexts/ProductContext";
+import { Address, Order, Product, User } from "@/lib/types";
+import { mockUsers } from "@/lib/mockData";
+import {
+  MapPin,
+  ShoppingBag,
+  Box,
+  Plus,
+  Edit,
+  Package,
+  User as UserIcon,
+  Phone,
+  Image,
+  FileX,
+} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { EditProfileDialog } from "@/components/EditProfileDialog";
+import axios from "axios";
+import OrderDetailsDialog from "@/components/OrderDetailsDialog";
+import { format } from "date-fns";
+import GenerateBill from "@/components/GenerateBill";
+import CustomOrderButton from "@/components/CustomOrderButton";
 
 const ProfilePage = () => {
+  const [customOrders, setCustomOrders] = useState([
+    {
+      id: 1,
+      name: "Custom Electronics",
+      description: "High quality gaming PC",
+      category: "Electronics",
+      orderDate: new Date("2025-04-30"),
+      status: "PENDING",
+    },
+    {
+      id: 2,
+      name: "Personalized T-shirt",
+      description: "Custom printed t-shirt with logo",
+      category: "Clothing",
+      orderDate: new Date("2025-05-02"),
+      status: "APPROVED",
+    },
+    {
+      id: 3,
+      name: "Birthday Cake",
+      description: "Special cake for anniversary",
+      category: "Food & Beverages",
+      orderDate: new Date("2025-05-04"),
+      status: "IN PROGRESS",
+    },
+  ]);
   const { token, isAuthenticated } = useAuth();
   const {
     getProductsByOwnerId,
@@ -223,12 +304,12 @@ const ProfilePage = () => {
   const downloadBill = (order: Order) => {
     setBillOrder(order);
     setIsBillOPen(true);
-  }
+  };
 
   const onBillClose = () => {
     setIsBillOPen(false);
     setBillOrder(null);
-  }
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -256,21 +337,30 @@ const ProfilePage = () => {
 
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">OrderId ORD-00000{order.id}</h3>
-                          <Badge variant={
-                            order.status === 'delivered' ? 'default' :
-                              order.status === 'confirmed' ? 'secondary' :
-                                'outline'
-                          }>
+                          <h3 className="font-medium">
+                            OrderId ORD-00000{order.id}
+                          </h3>
+                          <Badge
+                            variant={
+                              order.status === "delivered"
+                                ? "default"
+                                : order.status === "confirmed"
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
                             {order.status}
                           </Badge>
                         </div>
 
                         <p className="text-xs text-gray-500 mt-1">
-                          Seller Contact: <a href={`tel:${order?.seller?.phone}`} className="text-blue-500 hover:underline">
+                          Seller Contact:{" "}
+                          <a
+                            href={`tel:${order?.seller?.phone}`}
+                            className="text-blue-500 hover:underline"
+                          >
                             {order?.seller?.phone}
                           </a>
-
                         </p>
                         <p className="text-sm text-gray-500">
                           Total: ₹{order.finalprice.toFixed(2)}
@@ -351,18 +441,29 @@ const ProfilePage = () => {
 
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium">OrderId ORD-00000{order.id}</h3>
-                          <Badge variant={
-                            order.status === 'delivered' ? 'default' :
-                              order.status === 'confirmed' ? 'secondary' :
-                                order.status === 'cancelled' ? 'destructive' :
-                                  'outline'
-                          }>
+                          <h3 className="font-medium">
+                            OrderId ORD-00000{order.id}
+                          </h3>
+                          <Badge
+                            variant={
+                              order.status === "delivered"
+                                ? "default"
+                                : order.status === "confirmed"
+                                ? "secondary"
+                                : order.status === "cancelled"
+                                ? "destructive"
+                                : "outline"
+                            }
+                          >
                             {order.status}
                           </Badge>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
-                          Buyer Contact: <a href={`tel:${order?.buyer?.phone}`} className="text-blue-500 hover:underline">
+                          Buyer Contact:{" "}
+                          <a
+                            href={`tel:${order?.buyer?.phone}`}
+                            className="text-blue-500 hover:underline"
+                          >
                             {order?.buyer?.phone}
                           </a>
                         </p>
@@ -372,27 +473,64 @@ const ProfilePage = () => {
                         <p className="text-xs text-gray-500 mt-1">
                           Ordered on {format(new Date(order.orderdate), "PPP")}
                         </p>
-                        <div className="mt-2 flex justify-between items-center" style={{display:"flex",flexWrap:"wrap"}}>
+                        <div
+                          className="mt-2 flex justify-between items-center"
+                          style={{ display: "flex", flexWrap: "wrap" }}
+                        >
                           <p className="text-xs flex items-center">
                             <MapPin size={14} className="mr-1" />
-                            {order.locality}, {order.city}, {order.district}, {order.state}, {order.pincode}
+                            {order.locality}, {order.city}, {order.district},{" "}
+                            {order.state}, {order.pincode}
                           </p>
                           <div className="mt-2 flex justify-between gap-2 items-center">
                             {order.status === "pending" && (
                               <>
-                                <Button size="sm" onClick={() => handleConfirmOrder(order.id, 'confirmed')}> Confirm</Button>
-                                <Button size="sm" style={{ background: "red" }} onClick={() => handleConfirmOrder(order.id, 'cancelled')}>Cancel</Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() =>
+                                    handleConfirmOrder(order.id, "confirmed")
+                                  }
+                                >
+                                  {" "}
+                                  Confirm
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  style={{ background: "red" }}
+                                  onClick={() =>
+                                    handleConfirmOrder(order.id, "cancelled")
+                                  }
+                                >
+                                  Cancel
+                                </Button>
                               </>
                             )}
-                            {order.status === 'confirmed' && (
+                            {order.status === "confirmed" && (
                               <>
-                                <Button size="sm" onClick={() => handleConfirmOrder(order.id, 'delivered')}> Deliver</Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() =>
+                                    handleConfirmOrder(order.id, "delivered")
+                                  }
+                                >
+                                  {" "}
+                                  Deliver
+                                </Button>
                               </>
                             )}
 
-                            <Button size="sm" onClick={() => handleViewOrder(order)}><i className="fa-regular fa-eye" /></Button>
-                            <Button size="sm" onClick={() => downloadBill(order)}><i className="fa-solid fa-file-pdf"></i></Button>
-
+                            <Button
+                              size="sm"
+                              onClick={() => handleViewOrder(order)}
+                            >
+                              <i className="fa-regular fa-eye" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => downloadBill(order)}
+                            >
+                              <i className="fa-solid fa-file-pdf"></i>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -484,6 +622,73 @@ const ProfilePage = () => {
             )}
           </div>
         );
+      case "custom":
+        return (
+          <div>
+     
+            {/* <CustomOrderButton /> */}
+            {customOrders.length === 0 ? (
+              <div className="text-gray-600 mb-6">
+                You haven't placed any orders yet.
+              </div>
+            ) : (
+              <div className="text-gray-600 mb-6">
+                Here are your recent orders:
+              </div>
+            )}
+
+            {customOrders.length > 0 && (
+              <Card className="mt-6">
+                <Table>
+                  <TableCaption>List of your custom orders</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Order Date</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customOrders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">
+                          {order.id}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <span>{order.name}</span>
+                            <p className="text-xs text-gray-500">
+                              {order.description}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>{order.category}</TableCell>
+                        <TableCell>
+                          {format(order.orderDate, "MMM d, yyyy")}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              order.status === "PENDING"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : order.status === "APPROVED"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-green-100 text-green-800"
+                            }`}
+                          >
+                            {order.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </div>
+        );
 
       default:
         return null;
@@ -519,8 +724,8 @@ const ProfilePage = () => {
         });
         localStorage.setItem("authToken", JSON.stringify(res.data.message));
         setIsEditProfileOpen(false);
-        navigate('/profile');
-        navigate(0)
+        navigate("/profile");
+        navigate(0);
         getUserInfo();
       } else {
         toast({
@@ -625,6 +830,20 @@ const ProfilePage = () => {
                 My Info
               </button>
             )}
+            {canBuy && (
+              <button
+                className={`pb-2 px-1 ${
+                  activeTab === "custom"
+                    ? "tab-active"
+                    : "text-gray-500 hover:text-gray-700"
+                } flex items-center`}
+                onClick={() => setActiveTab("custom")}
+              >
+                <MapPin size={16} className="mr-2" />
+                My Custom Orders
+              </button>
+            )}
+
             {canSell && (
               <button
                 className={`pb-2 px-1 ${
@@ -651,11 +870,23 @@ const ProfilePage = () => {
                 My Products
               </button>
             )}
+            {canSell && (
+              <button
+                className={`pb-2 px-1 ${
+                  activeTab === "custom"
+                    ? "tab-active"
+                    : "text-gray-500 hover:text-gray-700"
+                } flex items-center`}
+                onClick={() => setActiveTab("custom")}
+              >
+                <Box size={16} className="mr-2" />
+                Recived Custom Orders
+              </button>
+            )}
           </div>
         </div>
 
         <div className="py-4">{renderTabContent()}</div>
-        
       </main>
 
       {/* <AddressForm
@@ -687,19 +918,15 @@ const ProfilePage = () => {
         open={dialogOpen}
         onClose={handleCloseDialog}
       />
-      {
-        isbillOpen && (
-          <GenerateBill
-            order={billOrder}
-            open={isbillOpen}
-            onClose={onBillClose}
-          />
-        )
-      }
 
-
+      {isbillOpen && (
+        <GenerateBill
+          order={billOrder}
+          open={isbillOpen}
+          onClose={onBillClose}
+        />
+      )}
     </div>
   );
 };
-
 export default ProfilePage;

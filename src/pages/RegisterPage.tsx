@@ -95,10 +95,7 @@ const RegisterPage = () => {
                     <RadioGroupItem value="buyer" id="buyer" />
                     <Label htmlFor="buyer" className="cursor-pointer">Buyer</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="both" id="both" />
-                    <Label htmlFor="both" className="cursor-pointer">Both</Label>
-                  </div>
+
                 </RadioGroup>
               </div>
             </CardContent>

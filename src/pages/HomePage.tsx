@@ -42,6 +42,7 @@ const HomePage = () => {
       setCategory(categoryObj);
 
       setSearchTerm(decodeURI(productParamName));
+            setFilteredProducts([]);
     }
   }, [paramCategory,productParamName]);
 
@@ -52,6 +53,7 @@ const HomePage = () => {
         name: ""
       }
       setCategory(categoryObj);
+      setFilteredProducts([]);
     }
   }, [categoryId]);
 

@@ -11,6 +11,19 @@ import axios from "axios";
 import CustomOrderButton from "@/components/CustomOrderButton";
 
 const HomePage = () => {
+
+    const BASE_URL = import.meta.env.VITE_API_URL;
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState<Category>(null);
+  const [location, setLocation] = useState("All Locations");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
+  const [selectedProduct, setSelectedProduct] = useState<{
+    product: Product;
+    quantity: number;
+  } | null>(null);
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
+
   const { products, addOrder, setFilteredProducts } = useProducts();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -42,17 +55,6 @@ const HomePage = () => {
     }
   }, [categoryId]);
 
-  const BASE_URL = import.meta.env.VITE_API_URL;
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState<Category>(null);
-  const [location, setLocation] = useState("All Locations");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
-  const [selectedProduct, setSelectedProduct] = useState<{
-    product: Product;
-    quantity: number;
-  } | null>(null);
-  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
 
   // Calculate max price for the slider
   // let maxPrice = useMemo(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import ProductFilters from "@/components/ProductFilters";
@@ -12,7 +12,7 @@ import CustomOrderButton from "@/components/CustomOrderButton";
 
 const HomePage = () => {
 
-    const BASE_URL = import.meta.env.VITE_API_URL;
+  const BASE_URL = import.meta.env.VITE_API_URL;
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState<Category>(null);
@@ -33,68 +33,58 @@ const HomePage = () => {
   const paramCategory = queryParams.get("category");
   const productParamName = queryParams.get("name");
 
-    useEffect(() => {
-    if (paramCategory && productParamName) {
+  const Fetchfilterproducts = async () => {
+    try {
+      let authToken = localStorage.getItem("authToken");
+      authToken = JSON.parse(authToken);
+      setFilteredProducts([]);
+      const responsedata = await axios.post(
+        `${BASE_URL}/v1/public/api/product/filter`,
+        {
+          name: searchTerm || null,
+          category: category == null ? null : category,
+          location: location === "All Locations" ? null : location,
+          minPrice: priceRange[0],
+          maxPrice: priceRange[1],
+        }
+      );
+      if (responsedata.data) {
+        console.log(responsedata.data);
+        setFilteredProducts(responsedata.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch filtered products", error);
+    }
+  };
+ const countRef = useRef(0); // Use useRef to persist count across renders
+
+  useEffect(() => {
+    if (paramCategory && productParamName && countRef.current === 0) {
       const categoryObj: Category = {
         id: Number(paramCategory),
-        name: ""
-      }
+        name: "",
+      };
+      countRef.current = 1; // Update the ref value
       setCategory(categoryObj);
-
       setSearchTerm(decodeURI(productParamName));
-            setFilteredProducts([]);
-    }
-  }, [paramCategory,productParamName]);
-
-  useEffect(() => {
-    if (categoryId) {
+    } else if (categoryId && countRef.current === 0) {
       const categoryObj: Category = {
         id: Number(categoryId),
-        name: ""
-      }
+        name: "",
+      };
+      countRef.current = 1; // Update the ref value
       setCategory(categoryObj);
-      setFilteredProducts([]);
+    } else {
+      Fetchfilterproducts();
+      countRef.current = 1; // Update the ref value
     }
-  }, [categoryId]);
+  }, [paramCategory, productParamName, categoryId, searchTerm, category, location, priceRange]);
 
-
-  // Calculate max price for the slider
-  // let maxPrice = useMemo(() => {
-  //   const highest = Math.max(...products.map((p) => p.price));
-  //   return Math.ceil(highest / 10) * 10;
-  // }, [products]);
-
-  // // Reset price range when maxPrice changes
   // useEffect(() => {
-  //   setPriceRange([0, maxPrice]);
-  // }, [maxPrice]);
 
-  //Get product from backemd
+  //   Fetchfilterproducts();
+  // }, [searchTerm, category, location, priceRange]);
 
-  useEffect(() => {
-    const Fetchfilterproducts = async () => {
-      try {
-        let authToken = localStorage.getItem("authToken");
-        authToken = JSON.parse(authToken);
-        const responsedata = await axios.post(
-          `${BASE_URL}/v1/public/api/product/filter`,
-          {
-            name: searchTerm || null,
-            category: category == null ? null : category,
-            location: location === "All Locations" ? null : location,
-            minPrice: priceRange[0],
-            maxPrice: priceRange[1],
-          }
-        );
-        if (responsedata.data) {
-          setFilteredProducts(responsedata.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch filtered products", error);
-      }
-    };
-    Fetchfilterproducts();
-  }, [searchTerm, category, location, priceRange]);
 
   // Apply filters
   const filteredProducts = products;

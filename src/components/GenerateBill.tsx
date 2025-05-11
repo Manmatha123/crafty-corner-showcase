@@ -40,7 +40,7 @@ const GenerateBill: React.FC<BillProps> = ({ order, open, onClose }) => {
         </DialogHeader>
     <div>
       <button onClick={handleDownloadPDF} className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
-        Download PDF
+        Download Bill
       </button>
 
       <div ref={billRef} className="p-8 bg-white shadow-md max-w-3xl mx-auto">

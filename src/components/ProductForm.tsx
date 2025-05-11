@@ -117,7 +117,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {product ? 'Edit Product' : 'Add New Product'}
+            {product?.id ? 'Edit Product' : 'Add New Product'}
           </DialogTitle>
         </DialogHeader>
 
@@ -242,7 +242,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
             }}>
               Cancel
             </Button>
-            <Button type="submit">{product ? 'Update Product' : 'Add Product'}</Button>
+            <Button type="submit">{product?.id ? 'Update Product' : 'Add Product'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

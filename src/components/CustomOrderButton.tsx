@@ -151,7 +151,8 @@ console.log(customOrder)
     const res = await axios.post(`${BASE_URL}/v1/custom-order/saveorupdate`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${authToken}`
+        'Authorization': `Bearer ${authToken}`,
+        'ngrok-skip-browser-warning' : '1'
       },
     });
 

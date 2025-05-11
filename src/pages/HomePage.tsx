@@ -46,6 +46,11 @@ const HomePage = () => {
           location: location === "All Locations" ? null : location,
           minPrice: priceRange[0],
           maxPrice: priceRange[1],
+        },
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "1"
+          },
         }
       );
       if (responsedata.data) {

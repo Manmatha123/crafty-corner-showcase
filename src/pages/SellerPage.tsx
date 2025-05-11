@@ -37,7 +37,11 @@ const SellerPage = () => {
   const getchSellerById = async () => {
    
     try {
-      const res = await axios.get(`${BASE_URL}/v1/api/user/id/${sellerId}`);
+      const res = await axios.get(`${BASE_URL}/v1/api/user/id/${sellerId}`,{
+        headers: {
+          'ngrok-skip-browser-warning': '1',
+        }
+      });
       setsellerInfo(res.data);
     } catch (error) {
     }
@@ -45,7 +49,11 @@ const SellerPage = () => {
 
   const fetchSellerProducts = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/v1/public/api/product/seller-products/id/${sellerId}`);
+      const res = await axios.get(`${BASE_URL}/v1/public/api/product/seller-products/id/${sellerId}`,{
+        headers: {
+          'ngrok-skip-browser-warning': '1',
+        }
+      });
       setproductList(res.data);
     } catch (error) {
     }

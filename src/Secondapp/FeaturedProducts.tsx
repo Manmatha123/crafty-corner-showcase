@@ -6,73 +6,6 @@ import axios from 'axios';
 import { Product } from '@/lib/types';
 import { useNavigate } from 'react-router-dom';
 
-const productsData = [
-  {
-    id: 1,
-    name: "Hand-Painted Ceramic Vase",
-    image: "/images/product-1.jpg",
-    price: 49.99,
-    category: "Artwork",
-    artist: "Emma Johnson"
-  },
-  {
-    id: 2,
-    name: "Rustic Wooden Photo Frame",
-    image: "/images/product-2.jpg",
-    price: 29.99,
-    category: "Photo Frames",
-    artist: "Michael Clark"
-  },
-  {
-    id: 3,
-    name: "Intricate Pencil Portrait",
-    image: "/images/product-3.jpg",
-    price: 199.99,
-    category: "Pencil Art",
-    artist: "Sarah Williams"
-  },
-  {
-    id: 4,
-    name: "Handwoven Wall Hanging",
-    image: "/images/product-4.jpg",
-    price: 89.99,
-    category: "Wall Art",
-    artist: "Jessica Lee"
-  },
-  {
-    id: 5,
-    name: "Handmade Leather Journal",
-    image: "/images/product-5.jpg",
-    price: 34.99,
-    category: "Handcrafts",
-    artist: "David Rodriguez"
-  },
-  {
-    id: 6,
-    name: "Abstract Oil Painting",
-    image: "/images/product-6.jpg",
-    price: 259.99,
-    category: "Artwork",
-    artist: "Thomas Wilson"
-  },
-  {
-    id: 7,
-    name: "Wildlife Pencil Sketch Collection",
-    image: "/images/product-7.jpg",
-    price: 149.99,
-    category: "Pencil Art",
-    artist: "Rebecca Davis"
-  },
-  {
-    id: 8,
-    name: "Handcrafted Metal Photo Frame",
-    image: "/images/product-8.jpg",
-    price: 45.99,
-    category: "Photo Frames",
-    artist: "John Miller"
-  }
-];
-
 const FeaturedProducts = () => {
   const BASE_URL = import.meta.env.VITE_API_URL;
 const [productList,setProductList]=React.useState<Product[]>([]);
@@ -84,7 +17,11 @@ const navigate=useNavigate();
   }, []);
  
   const fetchLatestProductList = async () => {
-    const res = await axios.get(`${BASE_URL}/v1/public/api/product/filter-latest?page=0&size=8`);
+    const res = await axios.get(`${BASE_URL}/v1/public/api/product/filter-latest?page=0&size=8`,{
+      headers: {
+        'ngrok-skip-browser-warning': '1',
+      }
+    });
     setProductList(res.data.content);
   }
   // /v1/public/api/product/filter-latest

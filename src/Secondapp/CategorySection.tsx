@@ -35,7 +35,11 @@ const CategorySection = () => {
   }, []);
  
   const fetchAllcategory = async () => {
-    const res = await axios.get(`${BASE_URL}/v1/api/categories/list`);
+    const res = await axios.get(`${BASE_URL}/v1/api/categories/list`,{
+      headers: {
+        'ngrok-skip-browser-warning': '1',
+      }
+    });
     setCategoryList(res.data);
   }
 

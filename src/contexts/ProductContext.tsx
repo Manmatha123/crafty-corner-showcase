@@ -56,7 +56,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const res = await axios.post(`${BASE_URL}/v1/api/product/saveorupdate`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${authToken}`
+        'Authorization': `Bearer ${authToken}`,
+        'ngrok-skip-browser-warning' : '1'
       },
     });
 
@@ -73,6 +74,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const res = await axios.delete(`${BASE_URL}/v1/api/product/delete/id/${productId}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
+        'ngrok-skip-browser-warning' : '1'
       }
     });
     if (res.data.status) {
@@ -106,7 +108,8 @@ if(!token) {
     const res=await axios.post(`${BASE_URL}/v1/api/order/saveorupdate`, newOrder, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'ngrok-skip-browser-warning' : '1'
     }}  
     );
    
@@ -128,7 +131,8 @@ if(!token) {
         const res=await axios.get(`${BASE_URL}/v1/api/order/status/id/${orderId}/${status}`, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning' : '1'
         }}  
         );
         if(res.data.status){

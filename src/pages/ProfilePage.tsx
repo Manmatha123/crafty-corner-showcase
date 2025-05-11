@@ -127,6 +127,7 @@ const ProfilePage = () => {
     const res = await axios.get(`${baseUrl}/v1/custom-order/list/owner/${id}`, {
       headers: {
         Authorization: `Bearer ${currentToken}`,
+        'ngrok-skip-browser-warning' : '1'
       },
     });
 
@@ -139,6 +140,7 @@ const ProfilePage = () => {
     const res = await axios.get(`${baseUrl}/v1/custom-order/status/id/${id}/${status}`, {
       headers: {
         Authorization: `Bearer ${currentToken}`,
+        'ngrok-skip-browser-warning' : '1'
       },
     });
 
@@ -165,6 +167,7 @@ const ProfilePage = () => {
     const res = await axios.get(`${baseUrl}/v1/custom-order/list/buyer/${id}`, {
       headers: {
         Authorization: `Bearer ${currentToken}`,
+        'ngrok-skip-browser-warning' : '1'
       },
     });
 
@@ -177,6 +180,7 @@ const ProfilePage = () => {
       const res = await axios.get(`${baseUrl}/v1/api/user/info`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
+          'ngrok-skip-browser-warning' : '1'
         },
       });
       localStorage.setItem("user", JSON.stringify(res.data));
@@ -202,6 +206,7 @@ const ProfilePage = () => {
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
+            'ngrok-skip-browser-warning' : '1'
           },
         }
       );
@@ -218,6 +223,7 @@ const ProfilePage = () => {
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
+            'ngrok-skip-browser-warning' : '1'
           },
         }
       );
@@ -232,6 +238,7 @@ const ProfilePage = () => {
       const res = await axios.get(`${baseUrl}/v1/api/product/owner-products`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
+          'ngrok-skip-browser-warning' : '1'
         },
       });
       setOwnerProduct(res.data);
@@ -850,6 +857,7 @@ const ProfilePage = () => {
       const res = await axios.post(`${baseUrl}/v1/api/user/update`, userObj, {
         headers: {
           Authorization: `Bearer ${token}`,
+          'ngrok-skip-browser-warning' : '1'
         },
       });
       if (res.data.status) {

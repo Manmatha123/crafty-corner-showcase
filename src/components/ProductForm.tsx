@@ -48,6 +48,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
     const res = await axios.get(`${BASE_URL}/v1/api/categories/list`, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning' : '1'
       }
     });
     setCategoryList(res.data);

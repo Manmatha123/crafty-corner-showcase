@@ -71,12 +71,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         phone,
         password,
       };
-      const res = await axios.post(`${baseUrl}/v1/api/user/signin`, user);
+      const res = await axios.post(`${baseUrl}/v1/api/user/signin`, user,{
+        headers: {
+          'ngrok-skip-browser-warning': '1',
+        }
+      });
 
       if(res.data.status){
         const userRes = await axios.get(`${baseUrl}/v1/api/user/info`, {
           headers: {
             Authorization: `Bearer ${res.data.message}`,
+            'ngrok-skip-browser-warning' : '1'
           } } );
           localStorage.setItem("user",JSON.stringify(userRes.data));
         toast({
@@ -127,7 +132,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         role,
         password,
       };
-      const res = await axios.post(`${baseUrl}/v1/api/user/saveorupdate`, user);
+      const res = await axios.post(`${baseUrl}/v1/api/user/saveorupdate`, user,{
+        headers:{
+          'ngrok-skip-browser-warning' : '1'
+        }
+      });
       if (res.data.status) {
         toast({
           title: "Success",

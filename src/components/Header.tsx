@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import websitelogo from "../../public/websitelogo.jpg";
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -11,7 +12,11 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b shadow-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-brand-600">
+        <Link to="/" className="text-2xl font-bold text-brand-600" style={{display:"flex",gap:"4px"}}>
+        <div style={{height:"35px",borderRadius:"2%",overflow:"hidden"}}>
+
+        <img src={websitelogo} style={{height:"35px",}} alt="" />
+        </div>
           Artisence
         </Link>
         

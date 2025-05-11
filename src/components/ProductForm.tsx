@@ -159,7 +159,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="kg">Kilogram (kg)</SelectItem>
-                        <SelectItem value="liter">Liter</SelectItem>
+                        <SelectItem value="litter">Litter</SelectItem>
                         <SelectItem value="pic">Piece</SelectItem>
                       </SelectContent>
                     </Select>

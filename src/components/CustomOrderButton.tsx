@@ -148,6 +148,7 @@ const CustomOrderButton = ({ seller }: SellerObj) => {
 console.log(image)
 console.log(customOrder)
 
+
     const res = await axios.post(`${BASE_URL}/v1/custom-order/saveorupdate`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

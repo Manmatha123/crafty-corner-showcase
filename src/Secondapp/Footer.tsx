@@ -11,7 +11,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-6" >
               <Package className="w-6 h-6 text-craft-300" />
-              <span className="text-xl font-bold text-black">Eco Market</span>
+              <span className="text-xl font-bold text-black">Artisence</span>
             </div>
             <p className="text-craft-300 mb-6" style={{maxWidth:"50%"}}>
               We curate handcrafted treasures made with love and passion by talented artisans from around the world.
@@ -53,7 +53,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 text-craft-400 flex-shrink-0" />
-                <span className="text-craft-300">info@ecomarket.com</span>
+                <span className="text-craft-300">info@artisence.com</span>
               </li>
             </ul>
           </div>
@@ -61,7 +61,7 @@ const Footer = () => {
         
         <div className="border-t border-craft-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-craft-400 text-sm">
-            &copy; {new Date().getFullYear()} EcoMarket. <i className="fa-solid fa-heart" style={{color:"red"}}></i> with srinix college of engineering.
+            &copy; {new Date().getFullYear()} Artisence. <i className="fa-solid fa-heart" style={{color:"red"}}></i> with Artisence Team
           </p>
           <div className="mt-4 md:mt-0">
             <ul className="flex space-x-6 text-sm text-craft-400">

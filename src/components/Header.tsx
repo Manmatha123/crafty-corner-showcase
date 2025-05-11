@@ -12,7 +12,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-white border-b shadow-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-brand-600">
-          EcoMarket
+          Artisence
         </Link>
         
         <div className="flex items-center space-x-4">

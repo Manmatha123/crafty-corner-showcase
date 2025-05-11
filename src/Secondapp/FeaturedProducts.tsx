@@ -30,7 +30,7 @@ const navigate=useNavigate();
       <div className="container">
         <div className="flex flex-wrap items-center justify-between mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-craft-900 mb-2">Featured Products</h2>
+            <h2 className="text-3xl font-bold text-craft-900 mb-2">Latest Products</h2>
             <p className="text-craft-700">Handpicked items crafted with attention to detail</p>
           </div>
           <div className="mt-4 lg:mt-0">

@@ -161,6 +161,7 @@ const ProductForm = ({ product, isOpen, onClose, onSave }: ProductFormProps) => 
                         <SelectItem value="kg">Kilogram (kg)</SelectItem>
                         <SelectItem value="litter">Litter</SelectItem>
                         <SelectItem value="pic">Piece</SelectItem>
+                        <SelectItem value="set">set</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

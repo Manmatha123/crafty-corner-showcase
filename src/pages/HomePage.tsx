@@ -116,7 +116,7 @@ const HomePage = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Fresh & Local Products
+            New & Creative Products
           </h1>
           <p className="text-gray-600 mt-2">
             Discover the best products from local sellers

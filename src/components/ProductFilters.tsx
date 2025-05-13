@@ -83,7 +83,7 @@ const ProductFilters = ({
   <SelectTrigger id="category" className="mt-1">
     <SelectValue placeholder="Select category" />
   </SelectTrigger>
-  <SelectContent>
+  <SelectContent className="max-h-300px overflow-y-auto z-50" style={{maxHeight:"300px"}}>
     <SelectItem key="nullvalue" value="null">All</SelectItem>
     {categoryList && categoryList.map((cat) => (
       <SelectItem key={cat.id} value={String(cat.id)}>

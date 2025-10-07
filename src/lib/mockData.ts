@@ -7,33 +7,21 @@ export const mockUsers: User[] = [
     phone: '1234567890',
     role: 'seller',
     profileImage: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952',
-    addresses: [
-      {
-        id: 'addr1',
-        street: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        isDefault: true
-      }
-    ]
+    userAdditional: {
+      id: 1,
+      customorder: true
+    }
   },
   {
     id: '2',
     name: 'Jane Smith',
-    mobile: '0987654321',
+    phone: '0987654321',
     role: 'buyer',
     profileImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-    addresses: [
-      {
-        id: 'addr2',
-        street: '456 Oak Ave',
-        city: 'Los Angeles',
-        state: 'CA',
-        zipCode: '90001',
-        isDefault: true
-      }
-    ]
+    userAdditional: {
+      id: 2,
+      customorder: false
+    }
   }
 ];
 
@@ -43,91 +31,71 @@ export const mockProducts: Product[] = [
     image: 'https://images.unsplash.com/photo-1518069024422-79b44c53cb83?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGZydWl0c3xlbnwwfHwwfHx8MA%3D%3D',
     name: 'Organic Apples',
     price: 2.99,
-    category: 'Fruits',
+    category: { id: 1, name: 'Fruits' },
     description: 'Freshly picked organic apples from local farms.',
-    sellUnit: 'kg',
-    location: 'New York',
-    sellerId: '1',
-    sellerName: 'John Doe',
+    sellunit: 'kg',
+    seller: mockUsers[0],
   },
   {
     id: '102',
     image: 'https://images.unsplash.com/photo-1560807707-8cc756ca4fdf?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHZlZ2V0YWJsZXN8ZW58MHx8MHx8fDA%3D%3D',
     name: 'Fresh Carrots',
     price: 1.49,
-    category: 'Vegetables',
+    category: { id: 2, name: 'Vegetables' },
     description: 'Crisp and sweet carrots, perfect for snacking.',
-    sellUnit: 'kg',
-    location: 'Los Angeles',
-    sellerId: '2',
-    sellerName: 'Jane Smith',
+    sellunit: 'kg',
+    seller: mockUsers[1],
   },
   {
     id: '103',
     image: 'https://images.unsplash.com/photo-1608686264061-c73bf3903387?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGZydWl0c3xlbnwwfHwwfHx8MA%3D%3D',
     name: 'Sweet Bananas',
     price: 0.79,
-    category: 'Fruits',
+    category: { id: 1, name: 'Fruits' },
     description: 'Ripe and delicious bananas, a healthy treat.',
-    sellUnit: 'pic',
-    location: 'Miami',
-    sellerId: '1',
-    sellerName: 'John Doe',
+    sellunit: 'pic',
+    seller: mockUsers[0],
   },
   {
     id: '104',
     image: 'https://images.unsplash.com/photo-1563734247033-9ca7a6cb6645?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHZlZ2V0YWJsZXN8ZW58MHx8MHx8fDA%3D%3D',
     name: 'Green Broccoli',
     price: 1.99,
-    category: 'Vegetables',
+    category: { id: 2, name: 'Vegetables' },
     description: 'Nutritious green broccoli, great for any meal.',
-    sellUnit: 'kg',
-    location: 'Chicago',
-    sellerId: '2',
-    sellerName: 'Jane Smith',
+    sellunit: 'kg',
+    seller: mockUsers[1],
   },
 ];
 
 export const mockOrders: Order[] = [
   {
     id: 'order1',
-    productId: '101',
-    productName: 'Organic Apples',
-    productImage: 'https://images.unsplash.com/photo-1518069024422-79b44c53cb83?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGZydWl0c3xlbnwwfHwwfHx8MA%3D%3D',
-    quantity: 2,
-    totalPrice: 5.98,
-    sellerId: '1',
-    buyerId: '2',
+    orderProducts: [],
+    orderdate: new Date(),
+    finalprice: 5.98,
+    seller: mockUsers[0],
+    buyer: mockUsers[1],
     status: 'pending',
-    address: {
-      id: 'addr2',
-      street: '456 Oak Ave',
-      city: 'Los Angeles',
-      state: 'CA',
-      zipCode: '90001',
-      isDefault: true
-    },
-    orderedAt: new Date().toISOString(),
+    locality: 'Downtown',
+    city: 'Los Angeles',
+    state: 'CA',
+    district: 'LA District',
+    pincode: '90001',
   },
   {
     id: 'order2',
-    productId: '102',
-    productName: 'Fresh Carrots',
-    productImage: 'https://images.unsplash.com/photo-1560807707-8cc756ca4fdf?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHZlZ2V0YWJsZXN8ZW58MHx8MHx8fDA%3D%3D',
-    quantity: 1,
-    totalPrice: 1.49,
-    sellerId: '2',
-    buyerId: '1',
+    orderProducts: [],
+    orderdate: new Date(),
+    finalprice: 1.49,
+    seller: mockUsers[1],
+    buyer: mockUsers[0],
     status: 'confirmed',
-    address: {
-      id: 'addr1',
-      street: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001',
-      isDefault: true
-    },
-    orderedAt: new Date().toISOString(),
+    locality: 'Midtown',
+    city: 'New York',
+    state: 'NY',
+    district: 'NY District',
+    pincode: '10001',
   },
 ];
 

@@ -111,16 +111,27 @@ const Chatbot = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] ${msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-lg p-3`}>
-                  <p className="text-sm">{msg.text}</p>
+                <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-lg p-3 space-y-3`}>
+                  <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                  
                   {msg.products && msg.products.length > 0 && (
-                    <div className="mt-2 space-y-2">
-                      {msg.products.map((product) => (
-                        <div key={product.id} className="bg-background rounded p-2 text-foreground">
-                          <p className="font-medium text-sm">{product.name}</p>
-                          <p className="text-xs text-muted-foreground">₹{product.price}</p>
-                        </div>
-                      ))}
+                    <div className="space-y-2 pt-2 border-t border-border/30">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Products Found</p>
+                      <div className="grid gap-2">
+                        {msg.products.map((product) => (
+                          <div key={product.id} className="bg-card rounded-lg p-3 shadow-sm border border-border/50 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm text-card-foreground truncate">{product.name}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">ID: {product.id}</p>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <p className="font-bold text-primary text-sm">₹{product.price.toFixed(2)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -129,7 +140,10 @@ const Chatbot = () => {
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-muted rounded-lg p-3">
-                  <p className="text-sm">Typing...</p>
+                  <div className="flex items-center gap-2">
+                    <div className="animate-pulse">💭</div>
+                    <p className="text-sm">Thinking...</p>
+                  </div>
                 </div>
               </div>
             )}

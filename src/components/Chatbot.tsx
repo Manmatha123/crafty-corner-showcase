@@ -26,7 +26,7 @@ interface Message {
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { type: 'bot', text: 'Hello! I am Indo Artiest. How can I help you find products today?' }
+    { type: 'bot', text: 'Hello! I am Indo Artisence. How can I help you find products today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -119,7 +119,7 @@ const Chatbot = () => {
           <div className="bg-primary text-primary-foreground p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              <h3 className="font-semibold">Indo Artiest</h3>
+              <h3 className="font-semibold">Indo Artisence</h3>
             </div>
             <Button
               variant="ghost"

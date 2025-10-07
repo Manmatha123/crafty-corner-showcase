@@ -6,6 +6,7 @@ import FeaturedProducts from './FeaturedProducts';
 import Testimonial from './Testimonial';
 import Footer from './Footer';
 import Header from '@/components/Header';
+import Chatbot from '@/components/Chatbot';
 
 const Index = () => {
   return (
@@ -18,6 +19,7 @@ const Index = () => {
         <Testimonial />
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 };

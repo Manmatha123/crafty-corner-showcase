@@ -12,7 +12,8 @@ import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import SellerPage from "./pages/SellerPage";
 import NotFound from "./pages/NotFound";
-import SecIndex from '../src/Secondapp/Index'
+import SecIndex from '../src/Secondapp/Index';
+import Chatbot from './components/Chatbot';
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
               {/* <Route path="/custom" element={<CustomOrder />} /> */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Chatbot />
           </BrowserRouter>
         </ProductProvider>
       </AuthProvider>
